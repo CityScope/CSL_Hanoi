@@ -9,12 +9,14 @@ model watermanegement
 
 global {
 	file riverShapefile<- shape_file('../includes/River/BACHUNGGAI_River.shp');
+	file riverShapePolygonfile<- shape_file('../includes/River/BACHUNGGAI_River_polygon.shp');
 	geometry shape <- envelope(riverShapefile);	
 	list<string> cellsTypes <- ["Gate", "Fish", "Rice","Vegetables", "Industrial", "Hospital"];
-	map<string, rgb> cellsColors <- ["Gate"::#black, "Fish"::#blue, "Rice"::#green,"Vegetables"::#darkgreen, "Industrial"::#red, "Hospital"::#orange ];
+	map<string, rgb> cellsColors <- ["Gate"::#black, "Fish"::#lightblue, "Rice"::#green,"Vegetables"::#darkgreen, "Industrial"::#red, "Hospital"::#orange ];
 	
 	init{
 		create river from:riverShapefile;
+		create river from:riverShapePolygonfile;
 
 	}
 	
