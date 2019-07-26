@@ -35,13 +35,13 @@ global {
 }
 
 
-grid cell width: 20 height: 20{
+grid cell width: 13 height: 13{
 	string type;
 	init{
 		type<-one_of (cellsTypes);
 	}
 	aspect base{
-		draw shape color:cellsColors[type];
+		draw shape*0.9 color:cellsColors[type];
 	}
 }
 
@@ -59,7 +59,8 @@ species gate{
 
 experiment gridloading type: gui {
 	output {
-		display "As DEM" type: opengl{
+		display "As DEM" type: opengl draw_env:false background:#black fullscreen:1 toolbar:false
+		keystone: [{0.16180121847129988,0.22946079240946138,0.0},{0.18077106522363712,0.7852474747946201,0.0},{0.6771033104328638,0.79365130564027,0.0},{0.692433154671796,0.23466785914628063,0.0}]{
 			species cell aspect:base;
 			species river aspect:base;
 			species gate aspect:base;
