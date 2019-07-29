@@ -18,13 +18,13 @@ global {
 	Station source;
 	Station dest;
 	graph the_river;
-	
+	float max_buffer<-0.004;
 	action init_BHH {
 //		create region from:BHH_shape_file;
 		create river from: river_shape_file;
 		create poi from: poi_file;
 		ask river{
-			buffer_shape<-shape;
+//			buffer_shape<-shape;
 			neighbor_river<-river where (each intersects self);
 		}
 		create Station from: tram_mua_shapefile ;
@@ -117,7 +117,6 @@ species river {
 	float water_volume;
 	float water_volume_from_other;
 	float evapo_rate<-0.35;
-	geometry buffer_shape;
 	action water_flow {
 		float avg<-water_volume / length(neighbor_river);
 		ask	neighbor_river - self{			
@@ -128,17 +127,16 @@ species river {
 	action update_water_level {
 		float avg<-water_volume / length(neighbor_river);
 		water_volume <- avg + water_volume_from_other;
-		water_volume<-water_volume>0.006?0.006:water_volume;
+		water_volume<-water_volume>max_buffer?max_buffer:water_volume;
 		water_volume_from_other <- 0.0;
 	}
 	reflex evapo{
 		water_volume<-water_volume-evapo_rate*rnd(1)*water_volume;
-		buffer_shape<-shape+water_volume;
 	}
 	
 	aspect default {
-		draw buffer_shape color: #blue;	
-//		draw shape + water_volume color: #blue;
+		draw shape color: #blue;	
+		draw shape + water_volume color: #blue;
 		
 			
 	}
