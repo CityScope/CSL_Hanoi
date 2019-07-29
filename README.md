@@ -1,5 +1,8 @@
 # CSL_Hanoi
 
+
+![](images/WaterManagement_BacHungHai.png)
+
 Repository dedicated to project related to Hanoi City
 
 ## Water Management
