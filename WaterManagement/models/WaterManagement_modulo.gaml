@@ -6,18 +6,9 @@
 */
 
 model watermanegement
-import "BHH6.gaml"
+import "BacHungHai Irrigation System.gaml"
 
-global {
-	file riverShapefile<- shape_file('../includes/River/BACHUNGGAI_River.shp');
-	file riverShapePolygonfile<- shape_file('../includes/River/BACHUNGGAI_River_polygon.shp');
-	file gateShapefile<- shape_file('../includes/River/BACHUNGGAI_Gate.shp');
-	file redriverPOIShapefile<- shape_file('../includes/River/red_river_poi.shp');
-	file gridShapefile<- shape_file('../includes/cell.shp');
-	graph the_river;
-//	geometry shape <- envelope(riverShapefile);
-	geometry shape <- envelope(river_shape_file) +0.01;
-	
+global {	
 	list<string> cellsTypes <- ["Fish", "Rice","Vegetables", "Industrial", "Hospital"];
 	list<float> consuming_water<-[3.0,2.0,1.0,1.5,0.5];
 	map<string, rgb> cellsColors <- [cellsTypes[0]::#darkblue, cellsTypes[1]::#green,cellsTypes[2]::#darkgreen, cellsTypes[3]::#red, cellsTypes[4]::#orange ];
@@ -25,39 +16,14 @@ global {
 	bool showBlock<-true;
 	
 	init{
-//		create river from:riverShapefile;
-//		create river from:riverShapePolygonfile;
-//		create poi from:gateShapefile{
-//			type<- flip(0.5) ? "source" :"outlet";
-//		}		
-//		create block from: gridShapefile with:[type::string(get("TYPE"))]{
-//		} 
-	 	do init_BHH; 
-		
+	 	do init_BHH; 	
 		ask river {
 			ask cell overlapping self {
-//				write self;
-				type <- "Water";
-				color<-#white;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
-			}
-		}
-		
-	//save cell to:"../results/cell.shp" type:"shp" attributes: ["ID":: int(self), "TYPE"::type];
-	}
-	 
-	reflex ss{
-		
-		ask river {
-			ask cell overlapping self {
-//				write self;
 				type <- "Water";
 				color<-#white;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
 			}
 		}
 	}
-//	reflex update when: cycle>1{
-//		save cell to:"./../results/grid.asc" type:"asc";
-//	}
 }
 
 species block{
@@ -92,14 +58,14 @@ experiment dev type: gui autorun:false{
 		    species block aspect:base;
 		    species cell aspect:base;// transparency:0.5; 
 			species river ; 
-			species poi;
+			species Station;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
 	} 
 }
 
-experiment gridloading type: gui autorun:true{
+experiment cityScopeTable type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black fullscreen:false toolbar:false synchronized:true
 		keystone: [{0.16180121847129988,0.22946079240946138,0.0},{0.18077106522363712,0.7852474747946201,0.0},{0.6771033104328638,0.79365130564027,0.0},{0.692433154671796,0.23466785914628063,0.0}]{

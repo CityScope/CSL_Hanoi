@@ -8,11 +8,11 @@
 model watermanegement
 
 global {
-	file riverShapefile<- shape_file('../includes/River/BACHUNGGAI_River.shp');
-	file riverShapePolygonfile<- shape_file('../includes/River/BACHUNGGAI_River_polygon.shp');
-	file gateShapefile<- shape_file('../includes/River/BACHUNGGAI_Gate.shp');
-	file redriverPOIShapefile<- shape_file('../includes/River/red_river_poi.shp');
-	file gridShapefile<- shape_file('../includes/cell.shp');
+	file riverShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_River.shp');
+	file riverShapePolygonfile<- shape_file('../includes/OpenData/BACHUNGHAI_River_polygon.shp');
+	file gateShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_Gate.shp');
+	file redriverPOIShapefile<- shape_file('../includes/OpenData/red_river_poi.shp');
+	file gridShapefile<- shape_file('../includes/OpenData/cell.shp');
 	graph the_river;
 	geometry shape <- envelope(riverShapefile);	
 	list<string> cellsTypes <- ["Fish", "Rice","Vegetables", "Industrial", "Hospital"];
@@ -36,8 +36,6 @@ global {
 				color<-#white;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
 			}
 		}
-		
-	//save cell to:"../results/cell.shp" type:"shp" attributes: ["ID":: int(self), "TYPE"::type];
 	}
 	
 	reflex c_water  {
@@ -46,11 +44,6 @@ global {
 			target <- one_of(poi where (each.type = "outlet")) ;
 			color<-#blue;
 		}
-	}
-	
-
-	reflex update when: cycle>1{
-		save cell to:"./../results/grid.asc" type:"asc";
 	}
 }
 

@@ -9,10 +9,9 @@
 model Waterflowrivergraph
 
 global {
-//	file BHH_shape_file <- shape_file("../includes/BHHSystem_region.shp");
-	file river_shape_file <- shape_file("../includes/River/river_simple2.shp");
-	file poi_file <- shape_file("../includes/River/river_poi.shp");
-	file tram_mua_shapefile <- file("../includes/River/TramMua.shp");
+	file river_shape_file <- shape_file("../includes/TuiLoiData/river_simple_splitted.shp");
+	file poi_file <- shape_file("../includes/TuiLoiData/river_poi.shp");
+	file tram_mua_shapefile <- file("../includes/TuiLoiData/TramMua.shp");
 
 	geometry shape <- envelope(river_shape_file) +0.01;
 	Station source;
@@ -69,7 +68,7 @@ species poi {
 }
 species Station skills: [moving] {
 	rgb color <- rnd_color(255);
-	list<float> heso <- [];
+//	list<float> heso <- [];
 	float hh <- 0.0;
 	float rad <- 0.01;
 	string Name;
@@ -80,8 +79,13 @@ species Station skills: [moving] {
 	geometry HL_area;
 	float TL_level <- 0.0;
 	float HL_level <- 0.0;
-	list<int> pa;
-
+	
+	bool is_closed<-false;
+//	list<int> pa;
+	
+	user_command "Switch" {
+		is_closed<-!is_closed;
+	}
 	action give_water {
 //		write "give water";
 		ask river overlapping self{water_volume <-water_volume+ 0.002;}
@@ -92,9 +96,9 @@ species Station skills: [moving] {
 	}
 
 	aspect default {
-		draw shape color: #red;
+		draw cube(0.01) color: #red;
 		draw circle(rad) color: #red empty: true;
-		draw Name + " " + " " + TL_level + " " + HL_level size: 10 at: location + 0.002 color: #red; // heso[cycle mod 4388] + 
+		draw Name + " " + " " + TL_level + " " + HL_level size: 10 at: {location.x,location.y,0.015} color: #red perspective:false; // heso[cycle mod 4388] + 
 		if (TL_area != nil) {
 			draw TL_area color: #green;
 		}
@@ -116,10 +120,17 @@ species river {
 	list<river> neighbor_river ;
 	float water_volume;
 	float water_volume_from_other;
-	float evapo_rate<-0.35;
+	float evapo_rate<-0.25;
 	action water_flow {
 		float avg<-water_volume / length(neighbor_river);
-		ask	neighbor_river - self{			
+		list<river> inactive<-[];
+		ask neighbor_river{
+			Station mine<-first(Station where (each intersects self));
+			if(mine!=nil and mine.is_closed){
+				inactive<+self;				
+			}
+		} 
+		ask	neighbor_river - self -inactive {			
 			water_volume_from_other <- water_volume_from_other + 1.4*avg;//0.5*myself.water_volume;
 		}
 	}
@@ -131,7 +142,7 @@ species river {
 		water_volume_from_other <- 0.0;
 	}
 	reflex evapo{
-		water_volume<-water_volume-evapo_rate*rnd(1)*water_volume;
+		water_volume<-water_volume-evapo_rate*(rnd(15)/10)*water_volume;
 	}
 	
 	aspect default {
