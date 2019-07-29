@@ -6,7 +6,7 @@
 */
 
 model watermanegement
-import "BHH6.gaml"
+import "BacHungHai Irrigation System.gaml"
 
 global {
 	file riverShapefile<- shape_file('../includes/River/BACHUNGGAI_River.shp');
@@ -92,7 +92,7 @@ experiment dev type: gui autorun:false{
 		    species block aspect:base;
 		    species cell aspect:base;// transparency:0.5; 
 			species river ; 
-			species poi;
+			species Station;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
