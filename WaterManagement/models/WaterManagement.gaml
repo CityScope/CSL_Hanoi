@@ -63,7 +63,7 @@ species block{
 	}
 }
 
-grid cell width: 13*4 height: 13*4 schedules:[]{
+grid cell width: 15*4 height: 15*4 schedules:[]{
 	string type;
 	rgb color;
 	init{
@@ -129,9 +129,8 @@ experiment dev type: gui autorun:true{
 experiment gridloading type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black fullscreen:1 toolbar:false synchronized:true
-		keystone: [{0.16180121847129988,0.22946079240946138,0.0},{0.18077106522363712,0.7852474747946201,0.0},{0.6771033104328638,0.79365130564027,0.0},{0.692433154671796,0.23466785914628063,0.0}]{
-			species block aspect:base;
-		    species cell aspect:base;// transparency:0.5; 
+		keystone: [{0.11789471987553607,0.17655677527359326,0.0},{0.14152218549855694,0.8209276100000611,0.0},{0.7190140590924565,0.8238821725750515,0.0},{0.733678653352665,0.17609555446014113,0.0}]{    
+			species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
 			species poi;
