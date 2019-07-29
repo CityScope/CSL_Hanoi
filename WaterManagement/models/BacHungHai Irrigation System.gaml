@@ -9,10 +9,9 @@
 model Waterflowrivergraph
 
 global {
-//	file BHH_shape_file <- shape_file("../includes/BHHSystem_region.shp");
-	file river_shape_file <- shape_file("../includes/River/river_simple_splitted.shp");
-	file poi_file <- shape_file("../includes/River/river_poi.shp");
-	file tram_mua_shapefile <- file("../includes/River/TramMua.shp");
+	file river_shape_file <- shape_file("../includes/TuiLoiData/river_simple_splitted.shp");
+	file poi_file <- shape_file("../includes/TuiLoiData/river_poi.shp");
+	file tram_mua_shapefile <- file("../includes/TuiLoiData/TramMua.shp");
 
 	geometry shape <- envelope(river_shape_file) +0.01;
 	Station source;

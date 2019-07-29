@@ -8,15 +8,7 @@
 model watermanegement
 import "BacHungHai Irrigation System.gaml"
 
-global {
-	file riverShapefile<- shape_file('../includes/River/BACHUNGGAI_River.shp');
-	file riverShapePolygonfile<- shape_file('../includes/River/BACHUNGGAI_River_polygon.shp');
-	file gateShapefile<- shape_file('../includes/River/BACHUNGGAI_Gate.shp');
-	file redriverPOIShapefile<- shape_file('../includes/River/red_river_poi.shp');
-	file gridShapefile<- shape_file('../includes/cell.shp');
-	graph the_river;
-	geometry shape <- envelope(river_shape_file) +0.01;
-	
+global {	
 	list<string> cellsTypes <- ["Fish", "Rice","Vegetables", "Industrial", "Hospital"];
 	list<float> consuming_water<-[3.0,2.0,1.0,1.5,0.5];
 	map<string, rgb> cellsColors <- [cellsTypes[0]::#darkblue, cellsTypes[1]::#green,cellsTypes[2]::#darkgreen, cellsTypes[3]::#red, cellsTypes[4]::#orange ];
