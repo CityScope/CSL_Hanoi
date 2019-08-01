@@ -17,7 +17,7 @@ global {
 	geometry shape <- envelope(riverShapefile);	
 	list<string> cellsTypes <- ["Fish", "Rice","Vegetables", "Industrial", "Hospital"];
 	map<string, rgb> cellsColors <- [cellsTypes[0]::#darkblue, cellsTypes[1]::#green,cellsTypes[2]::#darkgreen, cellsTypes[3]::#red, cellsTypes[4]::#orange ];
-	bool showGrid<-false;
+	bool showGrid<-true;
 	bool showBlock<-true;
 	
 	init{
@@ -33,7 +33,7 @@ global {
 		ask river {
 			ask cell overlapping self {
 				type <- "Water";
-				color<-#white;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
+				color<-#black;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
 			}
 		}
 	}
