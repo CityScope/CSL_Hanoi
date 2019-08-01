@@ -13,6 +13,9 @@ global {
 	file gateShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_Gate.shp');
 	file redriverPOIShapefile<- shape_file('../includes/OpenData/red_river_poi.shp');
 	file gridShapefile<- shape_file('../includes/OpenData/cell.shp');
+	file landUsefile <- shape_file('../includes/OpenData/land_use.shp');
+	
+	
 	graph the_river;
 	geometry shape <- envelope(riverShapefile);	
 	list<string> cellsTypes <- ["Fish", "Rice","Vegetables", "Industrial", "Hospital"];
@@ -21,6 +24,7 @@ global {
 	bool showBlock<-true;
 	
 	init{
+		create land from: landUsefile;
 		create river from:riverShapefile;
 		create river from:riverShapePolygonfile;
 		create poi from:gateShapefile{
@@ -72,7 +76,23 @@ grid cell width: 15*4 height: 15*4 schedules:[]{
 		}
 	}
 }
-
+species land{
+	int code;
+	string land_use;
+	string simple;
+	float area;
+	int id;
+	
+	action change_landuse{
+		
+	}
+	action update_status{
+		
+	}
+	aspect base{
+		draw shape color:#brown border:#black;
+	}
+}
 species water skills: [moving] {
 	poi target ;
 	rgb color;
@@ -108,11 +128,13 @@ species poi {
 experiment dev type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true {
+		    species land aspect:base;
 		    species block aspect:base;
 		    species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
 			species poi;
+			
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
@@ -123,6 +145,7 @@ experiment gridloading type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black fullscreen:1 toolbar:false synchronized:true
 		keystone: [{0.11789471987553607,0.17655677527359326,0.0},{0.14152218549855694,0.8209276100000611,0.0},{0.7190140590924565,0.8238821725750515,0.0},{0.733678653352665,0.17609555446014113,0.0}]{    
+			species land aspect:base;
 			species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
