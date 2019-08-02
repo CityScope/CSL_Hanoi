@@ -23,7 +23,9 @@ global {
 //		create region from:BHH_shape_file;
 		create river from: river_shape_file;
 		create poi from: poi_file;
-		create land from: land_use_file;
+		create land from: land_use_file with:[code::int(read("CODE")),
+			land_use::string(read("LANDUSE")),simple::string(read("SIMPLE")),area::float(read("AREA_HA")),id::int(read("ID"))
+		];
 		ask river{
 //			buffer_shape<-shape;
 			neighbor_river<-river where (each intersects self);
@@ -125,7 +127,7 @@ species land{
 	action update_status{
 		
 	}
-	aspect default{
+	aspect base{
 		draw shape color:#brown border:#black;
 	}
 }
@@ -183,7 +185,7 @@ experiment flow type: gui {
 			species river ; 
 //			species poi;
 			species Station;	
-			species land;		
+			species land aspect:base transparency:0.8 ;		
 		}
 	}
 }

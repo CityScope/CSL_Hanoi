@@ -24,7 +24,13 @@ global {
 	bool showBlock<-true;
 	
 	init{
-		create land from: landUsefile;
+	string land_use;
+	string simple;
+	float area;
+	int id;
+		create land from: landUsefile with:[code::int(read("CODE")),
+			land_use::string(read("LANDUSE")),simple::string(read("SIMPLE")),area::float(read("AREA_HA")),id::int(read("ID"))
+		];
 		create river from:riverShapefile;
 		create river from:riverShapePolygonfile;
 		create poi from:gateShapefile{
