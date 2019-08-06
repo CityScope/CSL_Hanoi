@@ -12,7 +12,8 @@ global {
 	file river_shape_file <- shape_file("../includes/TuiLoiData/river_simple_splitted.shp");
 	file poi_file <- shape_file("../includes/TuiLoiData/river_poi.shp");
 	file tram_mua_shapefile <- file("../includes/TuiLoiData/TramMua.shp");
-
+	file land_use_file <- shape_file('../includes/TuiLoiData/land_use.shp');
+	
 	geometry shape <- envelope(river_shape_file) +0.01;
 	Station source;
 	Station dest;
@@ -22,6 +23,9 @@ global {
 //		create region from:BHH_shape_file;
 		create river from: river_shape_file;
 		create poi from: poi_file;
+		create land from: land_use_file with:[code::int(read("CODE")),
+			land_use::string(read("LANDUSE")),simple::string(read("SIMPLE")),area::float(read("AREA_HA")),id::int(read("ID"))
+		];
 		ask river{
 //			buffer_shape<-shape;
 			neighbor_river<-river where (each intersects self);
@@ -110,7 +114,23 @@ species Station skills: [moving] {
 	}
 
 }
-
+species land{
+	int code;
+	string land_use;
+	string simple;
+	float area;
+	int id;
+	
+	action change_landuse{
+		
+	}
+	action update_status{
+		
+	}
+	aspect base{
+		draw shape color:#brown border:#black;
+	}
+}
 species region{
 	aspect default{
 		draw shape color:#darkgray border:#black;
@@ -164,7 +184,8 @@ experiment flow type: gui {
 //	 		species region;
 			species river ; 
 //			species poi;
-			species Station;			
+			species Station;	
+			species land aspect:base transparency:0.8 ;		
 		}
 	}
 }
