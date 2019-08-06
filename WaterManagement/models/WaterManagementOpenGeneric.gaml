@@ -45,6 +45,14 @@ global {
 			color<-#blue;
 		}
 	}
+	
+	reflex updateGrid{
+		ask cell{
+			if (flip(0.005) and type!="Water") {
+				type<-one_of (cellsTypes);
+			}
+		}
+	}
 }
 
 species block{
@@ -71,6 +79,15 @@ grid cell width: 15*4 height: 15*4 schedules:[]{
 			}	
 		}
 	}
+}
+
+
+grid lego width:15 height:15{
+	string type;
+	aspect base{
+		draw shape color:color;
+	}
+	
 }
 
 species water skills: [moving] {
