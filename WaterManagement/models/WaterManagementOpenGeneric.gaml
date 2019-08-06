@@ -145,8 +145,7 @@ experiment dev type: gui autorun:true{
 experiment gridloading type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black fullscreen:1 toolbar:false synchronized:true
-		keystone: [{0.11789471987553607,0.17655677527359326,0.0},{0.14152218549855694,0.8209276100000611,0.0},{0.7190140590924565,0.8238821725750515,0.0},{0.733678653352665,0.17609555446014113,0.0}]{    
-			//species land aspect:base;
+		keystone: [{0.11656421991808863,0.167109629356474,0.0},{0.14285268545600432,0.8143146078580775,0.0},{0.7170183091562854,0.8153797412496441,0.0},{0.735674403288836,0.16759312313473373,0.0}]{	//species land aspect:base;
 			species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
