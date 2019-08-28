@@ -8,11 +8,17 @@
 model watermanegement
 
 global {
+	/*TuiLoi 
+	file boundShapefile<-shape_file('../includes/TuiLoiData/bounds.shp');
+	file riverShapefile<- shape_file('../includes/TuiLoiData/river.shp');
+	file gateShapefile<- shape_file('../includes/TuiLoiData/TramMua.shp');
+	file landUsefile <- shape_file('../includes/TuiLoiData/land_use.shp');*/
+	
+	
 	file riverShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_River.shp');
 	file riverShapePolygonfile<- shape_file('../includes/OpenData/BACHUNGHAI_River_polygon.shp');
 	file gateShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_Gate.shp');
 	file redriverPOIShapefile<- shape_file('../includes/OpenData/red_river_poi.shp');
-	file gridShapefile<- shape_file('../includes/OpenData/cell.shp');
 	file landUsefile <- shape_file('../includes/OpenData/land_use.shp');
 	
 	
@@ -26,11 +32,10 @@ global {
 	init{
 		create river from:riverShapefile;
 		create river from:riverShapePolygonfile;
-		create poi from:gateShapefile{
+		create gate from:gateShapefile{
 			type<- flip(0.5) ? "source" :"outlet";
 		}		
-		create block from: gridShapefile with:[type::string(get("TYPE"))]{
-		}
+
 		the_river <- as_edge_graph(river);
 		
 		ask river {
@@ -39,34 +44,43 @@ global {
 				color<-#black;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
 			}
 		}
+		create land from:landUsefile;
+		
+		/*create block{
+			location<-{world.shape.width/2-world.shape.width*0.05,world.shape.height/2};
+			shape<-square(world.shape.width*0.750);
+		}
+		save block to:"../results/bounds.shp" type:"shp";*/
 	}
 	
 	reflex c_water  {
 		create water {
-			location <- one_of(poi where (each.type = "source")).location;
-			target <- one_of(poi where (each.type = "outlet")) ;
+			location <- one_of(gate where (each.type = "source")).location;
+			target <- one_of(gate where (each.type = "outlet")) ;
 			color<-#blue;
 		}
 	}
 	
 	reflex updateGrid{
-		ask cell{
+		/*ask cell{
 			if (flip(0.005) and type!="Water") {
 				type<-one_of (cellsTypes);
 			}
-		}
+		}*/
 	}
 }
 
 species block{
-	string type;
-	aspect base{
-		if(showBlock){
-		  draw shape*0.9 color:cellsColors[type];	
-		}
+	aspect default{
+		draw shape color:#yellow;
 	}
 }
 
+species land{
+	aspect base{
+		draw shape;
+	}
+}
 grid cell width: 15*4 height: 15*4 schedules:[]{
 	string type;
 	rgb color;
@@ -95,18 +109,20 @@ grid lego width:15 height:15{
 }
 
 species water skills: [moving] {
-	poi target ;
+	gate target ;
 	rgb color;
+	int amount<-250;
 
 	reflex move {
 		do goto target: target on: the_river speed: 150.0;
 		if(location=target.location){
 			do die;
 		}
+		//heading<-90;
 	}	
 	
 	aspect default {
-		draw circle(250) color: color border: color-25;
+		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
 	}
 }
 
@@ -117,9 +133,8 @@ species river{
 }
 
 
-species poi {
+species gate {
 	string type;
-	
 	aspect default {
 		draw circle(0.75#km) color: (type="source") ? #green : #red border: #black;		
 	}	
@@ -129,12 +144,12 @@ species poi {
 experiment dev type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true {
-		    //species land aspect:base;
-		    species block aspect:base;
+		    species block;
 		    species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
-			species poi;
+			species gate;
+			//species land aspect:base;
 			
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
@@ -142,14 +157,14 @@ experiment dev type: gui autorun:true{
 	} 
 }
 
-experiment gridloading type: gui autorun:true{
+experiment cityscope type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black fullscreen:1 toolbar:false synchronized:true
 		keystone: [{0.11656421991808863,0.167109629356474,0.0},{0.14285268545600432,0.8143146078580775,0.0},{0.7170183091562854,0.8153797412496441,0.0},{0.735674403288836,0.16759312313473373,0.0}]{	//species land aspect:base;
 			species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
-			species poi;
+			species gate;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
