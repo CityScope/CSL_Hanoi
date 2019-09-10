@@ -9,8 +9,7 @@
 model Waterflowrivergraph
 
 global {
-	file river_shape_file <- shape_file("../includes/TuiLoiData/river_simple_splitted.shp");
-	file poi_file <- shape_file("../includes/TuiLoiData/river_poi.shp");
+	file river_shape_file <- shape_file("../includes/TuiLoiData/river_splitted.shp");
 	file tram_mua_shapefile <- file("../includes/TuiLoiData/TramMua.shp");
 	file land_use_file <- shape_file('../includes/TuiLoiData/land_use.shp');
 	
@@ -22,7 +21,6 @@ global {
 	action init_BHH {
 //		create region from:BHH_shape_file;
 		create river from: river_shape_file;
-		create poi from: poi_file;
 		create land from: land_use_file with:[code::int(read("CODE")),
 			land_use::string(read("LANDUSE")),simple::string(read("SIMPLE")),area::float(read("AREA_HA")),id::int(read("ID"))
 		];
