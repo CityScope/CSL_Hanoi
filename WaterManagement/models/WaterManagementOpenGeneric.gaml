@@ -115,6 +115,7 @@ species water skills: [moving] {
 
 	reflex move {
 		do goto target: target on: the_river speed: 150.0;
+//		do wander on: the_river speed: 300.0;
 		if(location=target.location){
 			do die;
 		}
@@ -123,6 +124,7 @@ species water skills: [moving] {
 	
 	aspect default {
 		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
+//		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: #pink border: color-25;
 	}
 }
 
