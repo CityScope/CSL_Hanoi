@@ -243,9 +243,9 @@ species Station skills: [moving] {
 	bool is_closed<-false;
 	list<riverG> controledRivers <- [];
 
-	user_command "Switch" {
-		is_closed<-!is_closed;
-	}
+//	user_command "Switch" {
+//		is_closed<-!is_closed;
+//	}
 
 	action take_water {
 		ask water overlapping self{do die;}
