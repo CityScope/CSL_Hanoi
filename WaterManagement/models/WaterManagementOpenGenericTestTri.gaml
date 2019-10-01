@@ -17,8 +17,8 @@ global {
 	
 	file riverShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_River.shp');
 	file riverShapePolygonfile<- shape_file('../includes/OpenData/BACHUNGHAI_River_polygon.shp');
-	file riverGraphFile <- shape_file("../includes/TuiLoiData/river_splitted.shp");
-	file tram_mua_shapefile <- file("../includes/TuiLoiData/TramMua.shp");
+	file riverGraphFile <- shape_file("../includes/CleanedData/river_splitted.shp");
+	file tram_mua_shapefile <- file("../includes/CleanedData/TramMua.shp");
 	file gateShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_Gate.shp');
 	file redriverPOIShapefile<- shape_file('../includes/OpenData/red_river_poi.shp');
 	file landUsefile <- shape_file('../includes/OpenData/land_use.shp');
@@ -38,7 +38,7 @@ global {
 	map<riverG,float> probaEdges;
 //	list<riverG> closedRivers;
 	
-	float evaporationRate <- 10.0;
+	int evaporationAvgTime <- 2000;
 	
 	init{
 		create river from:riverShapefile;
@@ -110,6 +110,7 @@ global {
 	
 	
 	reflex updateGrid{
+//		write max(riverG collect(each.waterLevel));
 		/*ask cell{
 			if (flip(0.005) and type!="Water") {
 				type<-one_of (cellsTypes);
@@ -197,12 +198,17 @@ species water skills: [moving] {
 		if(location=target.location){
 			do die;
 		}
-	}	
+	}
+	
+	reflex evaporate when: (flip(1/evaporationAvgTime)){
+		do die;
+	}
 	
 	aspect default {
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: #pink border: color-25;
-		draw circle(0.25#km)  color: #blue ;
+//		draw circle(0.25#km)  color: #blue ;
+		draw square(0.25#km)  color: #blue ;	
 	}
 }
 
@@ -218,6 +224,15 @@ species riverG{
 	
 	aspect base{
 		draw shape color: is_closed? #red:#blue width:1;
+	}
+	
+	aspect waterLevel {
+		if (waterLevel > -1){
+//			draw shape color: is_closed? #red:#blue width:(min(waterLevel,8));
+			draw shape color: is_closed? #red:rgb(255-255*sqrt(min([waterLevel,8])/8),255-255*sqrt(min([waterLevel,8])/8),255) width:3;
+		}else{
+			draw shape color: is_closed? #red:rgb(30,30,30) width:1;
+		}
 	}
 }
 
@@ -281,19 +296,24 @@ species Station skills: [moving] {
 
 }
 
-
-experiment dev type: gui autorun:true{
+experiment devVisuAgents type: gui autorun:true{
 	output {
-		display "As DEM" type: opengl draw_env:false background:#black synchronized:true {
-//		    species block;
-//		    species cell aspect:base;// transparency:0.5; 
-//			species river aspect:base;
+		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
 			species riverG aspect:base transparency: 0.6;
 			species water transparency: 0.5;
-//			species gate;
-//			species flowRegulator;
 			species Station;
-			//species land aspect:base;
+			event mouse_down action:activate_act;
+			event["g"] action: {showGrid<-!showGrid;};
+			event["b"] action: {showBlock<-!showBlock;};
+		}
+	} 
+}
+
+experiment devVisuWaterLevel type: gui autorun:true{
+	output {
+		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
+			species riverG aspect:waterLevel;
+			species Station;
 			event mouse_down action:activate_act;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
