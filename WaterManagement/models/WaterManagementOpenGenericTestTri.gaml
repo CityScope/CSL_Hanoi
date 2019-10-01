@@ -38,7 +38,7 @@ global {
 	map<riverG,float> probaEdges;
 //	list<riverG> closedRivers;
 	
-	int evaporationAvgTime <- 2000;
+	int evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 1 min: 1 max:10000 <- 2000 ;
 	
 	init{
 		create river from:riverShapefile;
@@ -206,7 +206,6 @@ species water skills: [moving] {
 	
 	aspect default {
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
-//		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: #pink border: color-25;
 //		draw circle(0.25#km)  color: #blue ;
 		draw square(0.25#km)  color: #blue ;	
 	}
@@ -227,12 +226,12 @@ species riverG{
 	}
 	
 	aspect waterLevel {
-		if (waterLevel > -1){
+//		if (waterLevel > 0){
 //			draw shape color: is_closed? #red:#blue width:(min(waterLevel,8));
-			draw shape color: is_closed? #red:rgb(255-255*sqrt(min([waterLevel,8])/8),255-255*sqrt(min([waterLevel,8])/8),255) width:3;
-		}else{
-			draw shape color: is_closed? #red:rgb(30,30,30) width:1;
-		}
+//		}else{
+//			draw shape color: is_closed? #red:rgb(30,30,30) width:1;
+//		}
+		draw shape color: is_closed? #red:rgb(255-255*sqrt(min([waterLevel,8])/8),255-255*sqrt(min([waterLevel,8])/8),255) width:3;
 	}
 }
 
