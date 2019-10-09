@@ -18,7 +18,8 @@ global {
 	
 	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
-	map<string, int> cells_withdrawal <- [cells_types[0]::10, cells_types[1]::100,cells_types[2]::50, cells_types[3]::5, cells_types[4]::20];
+	//map<string, int> cells_withdrawal <- [cells_types[0]::10, cells_types[1]::100,cells_types[2]::50, cells_types[3]::5, cells_types[4]::20];
+	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::1.0,cells_types[2]::0.5, cells_types[3]::0.5, cells_types[4]::2.0];
 	map<string, int> cells_pollution <- [cells_types[0]::100, cells_types[1]::25,cells_types[2]::20, cells_types[3]::50, cells_types[4]::30];
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
@@ -38,6 +39,10 @@ global {
 		
 		ask cell {
 			do init_cell;
+		}
+		
+		ask river {
+			overlapping_cell <- first(cell overlapping self);
 		}
 		
 		source <- gate where (each.type = "source");//first(gate where (each.Name = "Song Hong"));
@@ -84,6 +89,19 @@ global {
 		}
 	}
 	
+	reflex water_consumption_and_pollution{
+		ask water where(each.current_edge != nil) {
+			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
+				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
+					create pollution {
+						location <- myself.location;
+					}		
+				}	
+			do die;
+			}
+		}	
+	}
+	
 	// if the user clicks on a gate, it will close or open it. If the user clicks on a land plot, it will change the land use. If when clicking when the mouse is over
 	// a gate and a land plot, it will only perform the action on the gate.
 	action mouse_click {
@@ -116,7 +134,27 @@ grid cell width: 15*4 height: 15*4 {
 	action init_cell {
 		rivers_on_cell <- river overlapping self;
 	}
+	
+//	reflex water_consumption when: true{//lent. Déplacé dans un reflex dans le global
+//		river r <- one_of(rivers_on_cell);
+//		list<water> ws <- water where (river(each.current_edge) = r);
+//		ask ws {
+//			if flip(cells_withdrawal[myself.type] * 0.01){
+//				if(flip(cells_pollution[myself.type] * 0.01)) {
+//					create pollution {
+//						location <- any(r.shape.points);// any_location_in(r);
+//					}		
+//				}	
+//			do die;
+//			}
+//		}	
+//	}
 
+
+/* 
+ * autre modèle de pollution ajouté dans le global (moins de consommation d'eau, rejet d'eau polluée ne peut être supérieur à la quantité d'eau prélevée)
+ * 
+ * 
 	reflex water_withdraw when: false {
 		river r <- one_of(rivers_on_cell);
 		list<water> ws <- water where (river(each.current_edge) = r);
@@ -125,7 +163,7 @@ grid cell width: 15*4 height: 15*4 {
 		}
 	}
 	
-	reflex pollution_emission when: true {
+	reflex pollution_emission when: false {
 		river r <- one_of(rivers_on_cell);
 		
 		if(r != nil) {
@@ -137,7 +175,7 @@ grid cell width: 15*4 height: 15*4 {
 			}			
 		}
 	}	
-	
+*/
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
@@ -202,6 +240,7 @@ species main_river{
 species river{
 	int waterLevel <- 0;
 	bool is_closed <- false;
+	cell overlapping_cell;
 	
 	aspect base{
 		draw shape color: is_closed? #red:#blue width:1;
@@ -259,7 +298,7 @@ species gate {
 experiment devVisuAgents type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
-			species cell aspect:base;	
+			species cell aspect:base transparency: 0.6;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species pollution transparency: 0.2;
