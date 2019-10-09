@@ -62,11 +62,14 @@ global {
 			put 0.001 at: self in: probaEdges;
 		}
 		
-		create water {
-			location <- (one_of(source)).location;
-			//target <- (one_of(dest)).location;
-			color<-#blue;
+		
+		ask source where(!each.is_closed){
+			create water {
+				location <- myself.location;
+				color<-#blue;
+			}
 		}
+		
 		ask dest {
 			do take_water;
 		}
@@ -174,22 +177,36 @@ species gate {
 	action take_water {
 		ask water overlapping self{do die;}
 	}
-
+	
 	aspect default {
-		if self.type = "source" {
-			draw circle(0.75#km) color:  #blue  border: #black;
+		if is_closed{
+			draw circle(0.75#km) color:  #red  border: #black;
 		}else{
-			if self.type = "sink" {
+			if self.type = "source" {
+				draw circle(0.75#km) color:  #blue  border: #black;
+			}else if self.type = "sink" {
 				draw circle(0.75#km) color:  #white  border: #black;
 			}else{
-				if is_closed{
-					draw circle(0.75#km) color:  #red  border: #black;
-				}else{
-					draw circle(0.75#km) color:  #green  border: #black;
-				}
+				draw circle(0.75#km) color:  #green  border: #black;
 			}
 		}
 	}
+
+//	aspect default {
+//		if self.type = "source" {
+//			draw circle(0.75#km) color:  #blue  border: #black;
+//		}else{
+//			if self.type = "sink" {
+//				draw circle(0.75#km) color:  #white  border: #black;
+//			}else{
+//				if is_closed{
+//					draw circle(0.75#km) color:  #red  border: #black;
+//				}else{
+//					draw circle(0.75#km) color:  #green  border: #black;
+//				}
+//			}
+//		}
+//	}
 }
 
 experiment devVisuAgents type: gui autorun:true{
