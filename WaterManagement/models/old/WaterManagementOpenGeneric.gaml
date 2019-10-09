@@ -20,6 +20,7 @@ global {
 	file gateShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_Gate.shp');
 	file redriverPOIShapefile<- shape_file('../includes/OpenData/red_river_poi.shp');
 	file landUsefile <- shape_file('../includes/OpenData/land_use.shp');
+	file riverGraphFile <- shape_file("../includes/CleanedData/river_splitted.shp");
 	
 	
 	graph the_river;
@@ -30,7 +31,7 @@ global {
 	bool showBlock<-true;
 	
 	init{
-		create river from:riverShapefile;
+		create river from: riverGraphFile;
 		create river from:riverShapePolygonfile;
 		create gate from:gateShapefile{
 			type<- flip(0.5) ? "source" :"outlet";
@@ -123,8 +124,8 @@ species water skills: [moving] {
 	}	
 	
 	aspect default {
-		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
-//		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: #pink border: color-25;
+//		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
+		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: #pink border: color-25;
 	}
 }
 
