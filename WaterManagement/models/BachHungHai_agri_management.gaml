@@ -20,8 +20,8 @@ global {
 	bool showGrid<-true;
 	bool showBlock<-true;
 	
-	gate source;
-	gate dest;
+	list<gate> source;
+	list<gate> dest;
 	
 	map<river,float> probaEdges;
 	
@@ -30,10 +30,10 @@ global {
 	init{
 		create main_river from:main_rivers_shape_file;
 		create river from: rivers_shape_file;	
-		create gate from: gates_shape_file;
+		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		
-		source <- first(gate where (each.Name = "Song Hong"));
-		dest <- first(gate where (each.Name = "Song Thai Binh")); 
+		source <- gate where (each.type = "source");//first(gate where (each.Name = "Song Hong"));
+		dest <- gate where (each.type = "sink");//first(gate where (each.Name = "Song Thai Binh")); 
 		
 		ask gate {
 			controledRivers <- river overlapping self;
@@ -63,8 +63,8 @@ global {
 		}
 		
 		create water {
-			location <- source.location;
-			target <- dest.location;
+			location <- (one_of(source)).location;
+			//target <- (one_of(dest)).location;
 			color<-#blue;
 		}
 		ask dest {
@@ -111,7 +111,7 @@ grid lego width:15 height:15{
 }
 
 species water skills: [moving] {
-	point target ;
+//	point target ;
 	rgb color;
 	int amount<-250;
 	river edge;
@@ -128,9 +128,9 @@ species water skills: [moving] {
 			put tmp at: edge in: probaEdges;	
 		}
 		edge <- river(current_edge);
-		if(location=target.location){
-			do die;
-		}
+//		if(location=target.location){
+//			do die;
+//		}
 	}
 	
 	reflex evaporate when: (flip(1/evaporationAvgTime)){
@@ -166,6 +166,7 @@ species river{
 species gate {
 	rgb color <- rnd_color(255);
 	string Name;
+	string type; // amongst "source", "sink" or "null".
 	geometry shape <- circle(0.75#km);	
 	bool is_closed<-false;
 	list<river> controledRivers <- [];
@@ -175,10 +176,10 @@ species gate {
 	}
 
 	aspect default {
-		if self = source {
+		if self.type = "source" {
 			draw circle(0.75#km) color:  #blue  border: #black;
 		}else{
-			if self = dest {
+			if self.type = "sink" {
 				draw circle(0.75#km) color:  #white  border: #black;
 			}else{
 				if is_closed{
@@ -196,7 +197,7 @@ experiment devVisuAgents type: gui autorun:true{
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
-			species water transparency: 0.5;
+			species water transparency: 0.2;
 			species gate;
 			
 			event mouse_down action:activate_gate;
