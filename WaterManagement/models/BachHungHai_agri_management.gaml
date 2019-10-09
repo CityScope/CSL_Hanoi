@@ -21,8 +21,8 @@ global {
 	map<string, int> cells_withdrawal <- [cells_types[0]::10, cells_types[1]::100,cells_types[2]::50, cells_types[3]::5, cells_types[4]::20];
 	map<string, int> cells_pollution <- [cells_types[0]::100, cells_types[1]::25,cells_types[2]::20, cells_types[3]::50, cells_types[4]::30];
 
-	bool showGrid<-true;
-	bool showBlock<-true;
+	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
+	bool showBlock parameter: 'Show blocks' category: "Parameters" <-true; //unused for now
 	
 	list<gate> source;
 	list<gate> dest;
@@ -33,9 +33,7 @@ global {
 	
 	init{
 		create main_river from:main_rivers_shape_file;
-		create river from: rivers_shape_file {
-			write self;
-		}	
+		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		
 		ask cell {
@@ -59,7 +57,6 @@ global {
 //			}
 //		}
 
-//		save river to: "../includes/BachHungHaiData/rivers.shp" type: "shp";
 	}
 	
 	reflex manage_water  {
@@ -87,12 +84,20 @@ global {
 		}
 	}
 	
-	action activate_gate {
+	// if the user clicks on a gate, it will close or open it. If the user clicks on a land plot, it will change the land use. If when clicking when the mouse is over
+	// a gate and a land plot, it will only perform the action on the gate.
+	action mouse_click {
 		gate selected_station <- first(gate overlapping (circle(1) at_location #user_location));
 		if selected_station != nil{
 			selected_station.is_closed <- !selected_station.is_closed;
 			ask selected_station.controledRivers {
 				self.is_closed <- !(self.is_closed);
+			}
+		} else {
+			cell selected_cell <- first(cell overlapping (circle(1) at_location #user_location));
+			if selected_cell != nil{
+				int old_type <- index_of(cells_types, selected_cell.type);
+				selected_cell.type <- cells_types[mod(index_of(cells_types, selected_cell.type)+1,length(cells_types))];
 			}
 		}
 	}
@@ -254,7 +259,7 @@ species gate {
 experiment devVisuAgents type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
-//			species cell aspect:base;// transparency:0.5; 			
+			species cell aspect:base;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species pollution transparency: 0.2;
@@ -262,7 +267,7 @@ experiment devVisuAgents type: gui autorun:true{
 			
 			species gate;
 			
-			event mouse_down action:activate_gate;
+			event mouse_down action:mouse_click;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
@@ -276,7 +281,7 @@ experiment devVisuWaterLevel type: gui autorun:true{
 			species river aspect:waterLevel;
 			species gate;
 			
-			event mouse_down action:activate_gate;
+			event mouse_down action:mouse_click;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
@@ -292,7 +297,7 @@ experiment cityscope type: gui autorun:true{
 			species water;
 			species gate;
 
-			event mouse_down action:activate_gate;			
+			event mouse_down action:mouse_click;			
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
 		}
