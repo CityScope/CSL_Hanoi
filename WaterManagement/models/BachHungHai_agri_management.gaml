@@ -33,7 +33,9 @@ global {
 	
 	init{
 		create main_river from:main_rivers_shape_file;
-		create river from: rivers_shape_file;	
+		create river from: rivers_shape_file {
+			write self;
+		}	
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		
 		ask cell {
@@ -56,6 +58,8 @@ global {
 //				color<-#black;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
 //			}
 //		}
+
+//		save river to: "../includes/BachHungHaiData/rivers.shp" type: "shp";
 	}
 	
 	reflex manage_water  {
@@ -116,6 +120,19 @@ grid cell width: 15*4 height: 15*4 {
 		}
 	}
 	
+	reflex pollution_emission when: true {
+		river r <- one_of(rivers_on_cell);
+		
+		if(r != nil) {
+			if(flip(cells_pollution[type] * 0.01)) {
+				// TODO : review the entry points 
+				create pollution {
+					location <- last(r.shape.points);// any_location_in(r);
+				}	
+			}			
+		}
+	}	
+	
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
@@ -136,7 +153,7 @@ grid lego width:15 height:15{
 
 species water skills: [moving] {
 //	point target ;
-	rgb color;
+	rgb color <- #blue;
 	int amount<-250;
 	river edge;
 	float tmp;
@@ -163,8 +180,12 @@ species water skills: [moving] {
 	
 	aspect default {
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
-		draw square(0.25#km)  color: #blue ;	
+		draw square(0.25#km)  color: color ;	
 	}
+}
+
+species pollution parent: water {
+	rgb color <- #red;
 }
 
 species main_river{
@@ -233,10 +254,12 @@ species gate {
 experiment devVisuAgents type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
-			species cell aspect:base;// transparency:0.5; 			
+//			species cell aspect:base;// transparency:0.5; 			
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
+			species pollution transparency: 0.2;
 			species water transparency: 0.2;
+			
 			species gate;
 			
 			event mouse_down action:activate_gate;
