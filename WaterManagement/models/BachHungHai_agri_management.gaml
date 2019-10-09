@@ -15,8 +15,12 @@ global {
 	
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
-	list<string> cellsTypes <- ["Fish", "Rice","Vegetables", "Industrial", "Hospital"];
-	map<string, rgb> cellsColors <- [cellsTypes[0]::#darkblue, cellsTypes[1]::#green,cellsTypes[2]::#darkgreen, cellsTypes[3]::#red, cellsTypes[4]::#orange ];
+	
+	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
+	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
+	map<string, int> cells_withdrawal <- [cells_types[0]::10, cells_types[1]::100,cells_types[2]::50, cells_types[3]::5, cells_types[4]::20];
+	map<string, int> cells_pollution <- [cells_types[0]::100, cells_types[1]::25,cells_types[2]::20, cells_types[3]::50, cells_types[4]::30];
+
 	bool showGrid<-true;
 	bool showBlock<-true;
 	
@@ -31,6 +35,10 @@ global {
 		create main_river from:main_rivers_shape_file;
 		create river from: rivers_shape_file;	
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
+		
+		ask cell {
+			do init_cell;
+		}
 		
 		source <- gate where (each.type = "source");//first(gate where (each.Name = "Song Hong"));
 		dest <- gate where (each.type = "sink");//first(gate where (each.Name = "Song Thai Binh")); 
@@ -87,12 +95,25 @@ global {
 	
 }
 
-grid cell width: 15*4 height: 15*4 schedules:[] {
+grid cell width: 15*4 height: 15*4 {
 	string type;
 	rgb color;
+	list<river> rivers_on_cell;
 	
 	init {
-		type<-one_of (cellsTypes);
+		type<-one_of (cells_types);
+	}
+	
+	action init_cell {
+		rivers_on_cell <- river overlapping self;
+	}
+
+	reflex water_withdraw when: false {
+		river r <- one_of(rivers_on_cell);
+		list<water> ws <- water where (river(each.current_edge) = r);
+		ask (cells_withdrawal[type]/100 * length(ws)) among ws {
+			do die;
+		}
 	}
 	
 	aspect base{
@@ -100,7 +121,7 @@ grid cell width: 15*4 height: 15*4 schedules:[] {
 			if(type="Water"){
 				draw shape*0.9 color:color;	
 			}else{
-			  	draw shape*0.9 color:cellsColors[type];	
+			  	draw shape*0.9 color:cells_colors[type];	
 			}	
 		}
 	}
@@ -212,6 +233,7 @@ species gate {
 experiment devVisuAgents type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
+			species cell aspect:base;// transparency:0.5; 			
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species water transparency: 0.2;
