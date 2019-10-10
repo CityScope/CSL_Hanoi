@@ -19,8 +19,11 @@ global {
 	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
 	//map<string, int> cells_withdrawal <- [cells_types[0]::10, cells_types[1]::100,cells_types[2]::50, cells_types[3]::5, cells_types[4]::20];
-	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::1.0,cells_types[2]::0.5, cells_types[3]::0.5, cells_types[4]::2.0];
-	map<string, int> cells_pollution <- [cells_types[0]::100, cells_types[1]::25,cells_types[2]::20, cells_types[3]::50, cells_types[4]::30];
+//	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::1.0,cells_types[2]::0.5, cells_types[3]::0.5, cells_types[4]::2.0];
+//	map<string, int> cells_pollution <- [cells_types[0]::100, cells_types[1]::25,cells_types[2]::20, cells_types[3]::50, cells_types[4]::30];
+	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
+	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90, cells_types[4]::30];
+
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
 	bool showBlock parameter: 'Show blocks' category: "Parameters" <-true; //unused for now
@@ -122,7 +125,7 @@ global {
 	
 }
 
-grid cell width: 15*4 height: 15*4 {
+grid cell width: 5 height: 5 {//width: 15*4 height: 15*4 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
@@ -179,9 +182,9 @@ grid cell width: 15*4 height: 15*4 {
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
-				draw shape*0.9 color:color;	
+				draw shape*0.8 color:color;	
 			}else{
-			  	draw shape*0.9 color:cells_colors[type];	
+			  	draw shape*0.8 color:cells_colors[type];	
 			}	
 		}
 	}
@@ -261,7 +264,8 @@ species gate {
 	list<river> controledRivers <- [];
 
 	action take_water {
-		ask water overlapping self{do die;}
+		//ask water overlapping self{do die;}
+		ask (agents of_generic_species water) overlapping self{do die;}
 	}
 	
 	aspect default {
@@ -298,7 +302,7 @@ species gate {
 experiment devVisuAgents type: gui autorun:true{
 	output {
 		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
-			species cell aspect:base transparency: 0.6;	
+			species cell aspect:base transparency: 0.2;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species pollution transparency: 0.2;
