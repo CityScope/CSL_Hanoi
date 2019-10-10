@@ -24,7 +24,7 @@ global {
 	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90, cells_types[4]::30];
 
-
+    bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
 	bool showBlock parameter: 'Show blocks' category: "Parameters" <-true; //unused for now
 	
@@ -125,7 +125,7 @@ global {
 	
 }
 
-grid cell width: 5 height: 5 {//width: 15*4 height: 15*4 {
+grid cell width: 8 height: 8 {//width: 15*4 height: 15*4 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
@@ -313,6 +313,22 @@ experiment devVisuAgents type: gui autorun:true{
 			event mouse_down action:mouse_click;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["b"] action: {showBlock<-!showBlock;};
+			event["l"] action: {showLegend<-!showLegend;};
+			
+			
+			
+			overlay position: { 5, 5 } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
+            {   if(showLegend){
+            	float y <- 30#px;
+                loop type over: cells_types
+                {
+                    draw square(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("SansSerif", 12);
+                    y <- y + 25#px;
+                }
+            	}
+                
+            }
 		}
 	} 
 }
