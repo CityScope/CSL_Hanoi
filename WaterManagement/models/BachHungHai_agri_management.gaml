@@ -14,7 +14,9 @@ global {
 	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers.shp");
 	
 	graph the_river;
-	geometry shape <- envelope(main_rivers_shape_file);	
+	
+	geometry preShape <- envelope(main_rivers_shape_file);	
+	geometry shape<-square(preShape.width) at_location preShape.location;
 	
 	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
@@ -36,6 +38,7 @@ global {
 	int evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 1 min: 1 max:10000 <- 2000 ;
 	
 	init{
+		write shape.width;
 		create main_river from:main_rivers_shape_file;
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
@@ -125,7 +128,7 @@ global {
 	
 }
 
-grid cell width: 8 height: 8 {//width: 15*4 height: 15*4 {
+grid cell width: 16 height: 16 {//width: 15*4 height: 15*4 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
@@ -182,9 +185,9 @@ grid cell width: 8 height: 8 {//width: 15*4 height: 15*4 {
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
-				draw shape*0.8 color:color;	
+				draw shape color:color ;	
 			}else{
-			  	draw shape*0.8 color:cells_colors[type];	
+			  	draw shape color:cells_colors[type];	
 			}	
 		}
 	}
