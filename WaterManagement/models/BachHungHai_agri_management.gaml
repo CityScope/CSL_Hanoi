@@ -125,7 +125,7 @@ global {
 	
 }
 
-grid cell width: 8 height: 8 {//width: 15*4 height: 15*4 {
+grid cell width: 15 height: 15 {//width: 15*4 height: 15*4 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
@@ -182,9 +182,9 @@ grid cell width: 8 height: 8 {//width: 15*4 height: 15*4 {
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
-				draw shape*0.8 color:color;	
+				draw shape color:color;	
 			}else{
-			  	draw shape*0.8 color:cells_colors[type];	
+			  	draw shape color:cells_colors[type];	
 			}	
 		}
 	}
@@ -299,9 +299,12 @@ species gate {
 //	}
 }
 
-experiment devVisuAgents type: gui autorun:true{
+experiment devVisuCityScope type: gui autorun:true{
 	output {
-		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
+		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1
+		keystone: [{0.11562222488820773,0.05004077744224389,0.0},{0.14016379650511573,0.8579672009459923,0.0},{0.7304627539107282,0.8707440056538288,0.0},{0.753824403707334,0.05686459432636426,0.0}]
+	
+		{
 			species cell aspect:base transparency: 0.2;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
