@@ -1,7 +1,7 @@
 /**
 * Name: Water Management Bac Hung Hai
-* Author:  Arnaud Grignard
-* Description: 
+* Author:  Arnaud Grignard, Tri Nguyen-Huu, Benoit Gaudou
+* Description: Wter Management Bac Hung Hai - MIT CityScope - IRD UMMISCO - WARM
 * Tags: grid, load_file, asc
 */
 
@@ -18,15 +18,12 @@ global {
 	
 	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
-	//map<string, int> cells_withdrawal <- [cells_types[0]::10, cells_types[1]::100,cells_types[2]::50, cells_types[3]::5, cells_types[4]::20];
-//	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::1.0,cells_types[2]::0.5, cells_types[3]::0.5, cells_types[4]::2.0];
-//	map<string, int> cells_pollution <- [cells_types[0]::100, cells_types[1]::25,cells_types[2]::20, cells_types[3]::50, cells_types[4]::30];
 	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90, cells_types[4]::30];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
-	bool showBlock parameter: 'Show blocks' category: "Parameters" <-true; //unused for now
+	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false; 
 	
 	list<gate> source;
 	list<gate> dest;
@@ -48,8 +45,8 @@ global {
 			overlapping_cell <- first(cell overlapping self);
 		}
 		
-		source <- gate where (each.type = "source");//first(gate where (each.Name = "Song Hong"));
-		dest <- gate where (each.type = "sink");//first(gate where (each.Name = "Song Thai Binh")); 
+		source <- gate where (each.type = "source");
+		dest <- gate where (each.type = "sink");
 		
 		ask gate {
 			controledRivers <- river overlapping self;
@@ -57,14 +54,6 @@ global {
 		
 		the_river <- as_edge_graph(river);
 		probaEdges <- create_map(river as list,list_with(length(river),100.0));
-		
-//		ask main_river {
-//			ask cell overlapping self {
-//				type <- "Water";
-//				color<-#black;//rgb(rnd(100)*1.1,rnd(100)*1.6,200,50);
-//			}
-//		}
-
 	}
 	
 	reflex manage_water  {
@@ -78,15 +67,12 @@ global {
 		ask river where each.is_closed{
 			put 0.001 at: self in: probaEdges;
 		}
-		
-		
 		ask source where(!each.is_closed){
 			create water {
 				location <- myself.location;
 				color<-#blue;
 			}
 		}
-		
 		ask dest {
 			do take_water;
 		}
@@ -125,7 +111,7 @@ global {
 	
 }
 
-grid cell width: 15 height: 15 {//width: 15*4 height: 15*4 {
+grid cell width: 15 height: 15 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
@@ -137,48 +123,7 @@ grid cell width: 15 height: 15 {//width: 15*4 height: 15*4 {
 	action init_cell {
 		rivers_on_cell <- river overlapping self;
 	}
-	
-//	reflex water_consumption when: true{//lent. Déplacé dans un reflex dans le global
-//		river r <- one_of(rivers_on_cell);
-//		list<water> ws <- water where (river(each.current_edge) = r);
-//		ask ws {
-//			if flip(cells_withdrawal[myself.type] * 0.01){
-//				if(flip(cells_pollution[myself.type] * 0.01)) {
-//					create pollution {
-//						location <- any(r.shape.points);// any_location_in(r);
-//					}		
-//				}	
-//			do die;
-//			}
-//		}	
-//	}
 
-
-/* 
- * autre modèle de pollution ajouté dans le global (moins de consommation d'eau, rejet d'eau polluée ne peut être supérieur à la quantité d'eau prélevée)
- * 
- * 
-	reflex water_withdraw when: false {
-		river r <- one_of(rivers_on_cell);
-		list<water> ws <- water where (river(each.current_edge) = r);
-		ask (cells_withdrawal[type]/100 * length(ws)) among ws {
-			do die;
-		}
-	}
-	
-	reflex pollution_emission when: false {
-		river r <- one_of(rivers_on_cell);
-		
-		if(r != nil) {
-			if(flip(cells_pollution[type] * 0.01)) {
-				// TODO : review the entry points 
-				create pollution {
-					location <- last(r.shape.points);// any_location_in(r);
-				}	
-			}			
-		}
-	}	
-*/
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
@@ -190,22 +135,13 @@ grid cell width: 15 height: 15 {//width: 15*4 height: 15*4 {
 	}
 }
 
-grid lego width:15 height:15{
-	string type;
-	aspect base{
-		draw shape color:color;
-	}
-}
-
 species water skills: [moving] {
-//	point target ;
 	rgb color <- #blue;
 	int amount<-250;
 	river edge;
 	float tmp;
 
-	reflex move {
-		
+	reflex move {	
 		if edge != nil{
 			tmp <- probaEdges[edge];
 			put 1.0 at: edge in: probaEdges;	
@@ -215,9 +151,6 @@ species water skills: [moving] {
 			put tmp at: edge in: probaEdges;	
 		}
 		edge <- river(current_edge);
-//		if(location=target.location){
-//			do die;
-//		}
 	}
 	
 	reflex evaporate when: (flip(1/evaporationAvgTime)){
@@ -246,11 +179,12 @@ species river{
 	cell overlapping_cell;
 	
 	aspect base{
-		draw shape color: is_closed? #red:#blue width:1;
-	}
-	
-	aspect waterLevel {
-		draw shape color: is_closed? #red:rgb(255-255*sqrt(min([waterLevel,8])/8),255-255*sqrt(min([waterLevel,8])/8),255) width:3;
+		if(showWaterLevel){
+			draw shape color: is_closed? #red:rgb(255-255*sqrt(min([waterLevel,8])/8),255-255*sqrt(min([waterLevel,8])/8),255) width:3;
+		}else{
+		draw shape color: is_closed? #red:#blue width:1;	
+		}
+		
 	}
 }
 
@@ -264,7 +198,6 @@ species gate {
 	list<river> controledRivers <- [];
 
 	action take_water {
-		//ask water overlapping self{do die;}
 		ask (agents of_generic_species water) overlapping self{do die;}
 	}
 	
@@ -281,29 +214,12 @@ species gate {
 			}
 		}
 	}
-
-//	aspect default {
-//		if self.type = "source" {
-//			draw circle(0.75#km) color:  #blue  border: #black;
-//		}else{
-//			if self.type = "sink" {
-//				draw circle(0.75#km) color:  #white  border: #black;
-//			}else{
-//				if is_closed{
-//					draw circle(0.75#km) color:  #red  border: #black;
-//				}else{
-//					draw circle(0.75#km) color:  #green  border: #black;
-//				}
-//			}
-//		}
-//	}
 }
 
-experiment devVisuCityScope type: gui autorun:true{
+
+experiment dev type: gui autorun:true{
 	output {
-		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1
-		keystone: [{0.11562222488820773,0.05004077744224389,0.0},{0.14016379650511573,0.8579672009459923,0.0},{0.7304627539107282,0.8707440056538288,0.0},{0.753824403707334,0.05686459432636426,0.0}]
-	
+		display "Bac" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle)
 		{
 			species cell aspect:base transparency: 0.2;	
 			species main_river aspect:base;			
@@ -315,10 +231,8 @@ experiment devVisuCityScope type: gui autorun:true{
 			
 			event mouse_down action:mouse_click;
 			event["g"] action: {showGrid<-!showGrid;};
-			event["b"] action: {showBlock<-!showBlock;};
 			event["l"] action: {showLegend<-!showLegend;};
-			
-			
+			event["w"] action: {showWaterLevel<-!showWaterLevel;};
 			
 			overlay position: { 5, 5 } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
@@ -336,33 +250,40 @@ experiment devVisuCityScope type: gui autorun:true{
 	} 
 }
 
-experiment devVisuWaterLevel type: gui autorun:true{
+
+experiment CityScope type: gui autorun:true parent:dev{
 	output {
-		display "As DEM" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) {
-			species main_river aspect:base;						
-			species river aspect:waterLevel;
-			species gate;
-			
-			event mouse_down action:mouse_click;
-			event["g"] action: {showGrid<-!showGrid;};
-			event["b"] action: {showBlock<-!showBlock;};
-		}
+		display "Physical Table" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
+		keystone: [{0.11562222488820773,0.05004077744224389,0.0},{0.14016379650511573,0.8579672009459923,0.0},{0.7304627539107282,0.8707440056538288,0.0},{0.753824403707334,0.05686459432636426,0.0}]
+		{}
 	} 
 }
 
-experiment cityscope type: gui autorun:true{
-	output {
-		display "As DEM" type: opengl draw_env:false background:#black fullscreen: false toolbar:false synchronized:true {
-			species cell aspect:base;// transparency:0.5; 
-			species main_river aspect:base;
-			species river aspect:base;
-			species water;
-			species gate;
+//////////////////////////////////////////////////////////// TO CLEAN //////////////////////////////////////////////////////////
 
-			event mouse_down action:mouse_click;			
-			event["g"] action: {showGrid<-!showGrid;};
-			event["b"] action: {showBlock<-!showBlock;};
+//TODO: DO we keep this?
+/* 
+ * autre modèle de pollution ajouté dans le global (moins de consommation d'eau, rejet d'eau polluée ne peut être supérieur à la quantité d'eau prélevée)
+ * 
+ * 
+	reflex water_withdraw when: false {
+		river r <- one_of(rivers_on_cell);
+		list<water> ws <- water where (river(each.current_edge) = r);
+		ask (cells_withdrawal[type]/100 * length(ws)) among ws {
+			do die;
 		}
-
-	} 
-}
+	}
+	
+	reflex pollution_emission when: false {
+		river r <- one_of(rivers_on_cell);
+		
+		if(r != nil) {
+			if(flip(cells_pollution[type] * 0.01)) {
+				// TODO : review the entry points 
+				create pollution {
+					location <- last(r.shape.points);// any_location_in(r);
+				}	
+			}			
+		}
+	}	
+*/
