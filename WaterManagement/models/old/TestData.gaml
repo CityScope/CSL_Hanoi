@@ -9,8 +9,8 @@ model TestData
 
 global {
 	shape_file Network_BHH0_shape_file <- shape_file("../includes/Network/Network_BHH.shp");
-	shape_file BACHUNGHAI_River_Polygon0_shape_file <- shape_file("../includes/OpenData/BACHUNGHAI_River_Polygon.shp");
-	shape_file BACHUNGHAI_River0_shape_file <- shape_file("../includes/OpenData/BACHUNGHAI_River.shp");
+	shape_file BACHUNGHAI_River_Polygon0_shape_file <- shape_file("../../includes/old/OpenData/BACHUNGHAI_River_Polygon.shp");
+	shape_file BACHUNGHAI_River0_shape_file <- shape_file("../../includes/old/OpenData/BACHUNGHAI_River.shp");
 
 	geometry shape <- envelope(Network_BHH0_shape_file);
 

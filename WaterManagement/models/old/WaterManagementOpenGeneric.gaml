@@ -15,12 +15,12 @@ global {
 	file landUsefile <- shape_file('../includes/TuiLoiData/land_use.shp');*/
 	
 	
-	file riverShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_River.shp');
-	file riverShapePolygonfile<- shape_file('../includes/OpenData/BACHUNGHAI_River_polygon.shp');
-	file gateShapefile<- shape_file('../includes/OpenData/BACHUNGHAI_Gate.shp');
-	file redriverPOIShapefile<- shape_file('../includes/OpenData/red_river_poi.shp');
-	file landUsefile <- shape_file('../includes/OpenData/land_use.shp');
-	file riverGraphFile <- shape_file("../includes/CleanedData/river_splitted.shp");
+	file riverShapefile<- shape_file('../../includes/old/OpenData/BACHUNGHAI_River.shp');
+	file riverShapePolygonfile<- shape_file('../../includes/old/OpenData/BACHUNGHAI_River_polygon.shp');
+	file gateShapefile<- shape_file('../../includes/old/OpenData/BACHUNGHAI_Gate.shp');
+	file redriverPOIShapefile<- shape_file('../../includes/old/OpenData/red_river_poi.shp');
+	file landUsefile <- shape_file('../../includes/old/OpenData/land_use.shp');
+	file riverGraphFile <- shape_file("../../includes/old/TuiLoiData/river_splitted.shp");
 	
 	
 	graph the_river;
