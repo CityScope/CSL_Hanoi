@@ -84,6 +84,8 @@ global {
 				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
 					create pollution {
 						location <- myself.location;
+						heading <- myself.heading;
+						color <- cells_colors[river(myself.current_edge).overlapping_cell.type] ;
 					}		
 				}	
 			do die;
