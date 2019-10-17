@@ -113,7 +113,7 @@ global {
 	
 }
 
-grid cell width: 15 height: 15 {
+grid cell width: 8 height: 8 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
@@ -129,9 +129,9 @@ grid cell width: 15 height: 15 {
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
-				draw shape color:color;	
+				draw shape*0.75 color:color;	
 			}else{
-			  	draw shape color:cells_colors[type];	
+			  	draw shape*0.75 color:cells_colors[type];	
 			}	
 		}
 	}
@@ -255,8 +255,8 @@ experiment dev type: gui autorun:true{
 
 experiment CityScope type: gui autorun:true parent:dev{
 	output {
-		display "Physical Table" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
-		keystone: [{0.11562222488820773,0.05004077744224389,0.0},{0.14016379650511573,0.8579672009459923,0.0},{0.7304627539107282,0.8707440056538288,0.0},{0.753824403707334,0.05686459432636426,0.0}]
+		display "Physical Table" type: opengl draw_env:false toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
+		keystone: [{0.10098673129882907,0.05004077744224389,0.0},{0.13085030058460204,0.8869230259426092,0.0},{0.7411067492484581,0.8996998306504457,0.0},{0.7684598972967126,0.05583045771934214,0.0}]
 		{}
 	} 
 }
