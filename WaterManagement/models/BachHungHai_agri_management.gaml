@@ -16,6 +16,7 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
+	map<int,string> cellsMap<-[1::"Fish", 2::"Rice",3::"Vegetables", 4::"Industrial", 5::"Urban"];
 	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
 	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
@@ -32,7 +33,14 @@ global {
 	
 	int evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 1 min: 1 max:10000 <- 2000 ;
 	
+	bool load_grid_file_from_cityIO <-true;
+	bool launchpad<-false;
+	int grid_height <- 8;
+	int grid_width <- 8;
+	string cityIOUrl;
+	
 	init{
+		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
 		create main_river from:main_rivers_shape_file;
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
@@ -111,6 +119,62 @@ global {
 		}
 	}
 	
+    reflex test_load_file_from_cityIO when: load_grid_file_from_cityIO and every(10#cycle) {
+		if(launchpad){
+	      do load_cityIO_v2(cityIOUrl);
+		}else{
+		  do load_cityIO_v2_urbam(cityIOUrl);
+		}
+		
+	}
+	
+	action load_cityIO_v2(string cityIOUrl_) {
+		map<string, unknown> cityMatrixData;
+	    list<map<string, int>> cityMatrixCell;
+	    	
+		try {
+			cityMatrixData <- json_file(cityIOUrl_).contents;
+		} catch {
+			//cityMatrixData <- json_file("../includes/cityIO_gama.json").contents;
+			write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json";
+		}
+		int nbCols <- int(map(map(cityMatrixData["header"])["spatial"])["ncols"]);
+		int nbRows <- int(map(map(cityMatrixData["header"])["spatial"])["nrows"]);
+		loop i from: 0 to: nbCols-1 {
+			loop j from: 0 to: nbRows -1{
+				int id <-int(list(list(cityMatrixData["grid"])[j*nbCols+i])[0]);
+				if(id!=-1){
+			     cell[i,j].type<-cellsMap.values[id];	
+			    }  
+			}
+        } 	
+	}
+	
+	action load_cityIO_v2_urbam(string cityIOUrl_) {
+		map<string, unknown> cityMatrixData;
+	    list<map<string, int>> cityMatrixCell;	
+		try {
+			cityMatrixData <- json_file(cityIOUrl_).contents;
+		} catch {
+			cityMatrixData <- json_file("../includes/cityIO_Urbam.json").contents;
+			write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json";
+		}
+		int ncols <- int(map(map(cityMatrixData["header"])["spatial"])["ncols"]);
+		int nrows <- int(map(map(cityMatrixData["header"])["spatial"])["nrows"]);
+		int x;
+		int y;
+		int id;
+		loop i from:0 to: (ncols*nrows)-1{ 
+			if((i mod nrows) mod 2 = 0 and int(i/ncols) mod 2 = 0){   
+				x<- grid_width-1-int((i mod nrows)/2);
+			    y<-grid_height-1-int((int(i/ncols))/2);
+			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
+			    if(id!=-1){
+			     cell[x,y].type<-cellsMap.values[id];	
+			    }  
+			 } 		
+       }	
+	}	
 }
 
 grid cell width: 8 height: 8 {
