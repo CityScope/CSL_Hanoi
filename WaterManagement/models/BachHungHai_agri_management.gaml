@@ -175,11 +175,16 @@ global {
 			     cell[x,y].type<-cellsMap.values[id];	
 			     if(rot=0 or rot=3){
 			     	ask gate overlapping cell[x,y]{
-			     		is_closed<-true;
+			     		if(self.type != "source" and self.type != "sink"){
+			     		  is_closed<-true;	
+			     		}
+			     		
 			     	}
 			     }else{
 			        ask gate overlapping cell[x,y]{
-			     		is_closed<-false;
+			     		if(self.type != "source" and self.type != "sink"){
+			     		  is_closed<-false;	
+			     		}
 			     	}	
 			     }
 			    }  
