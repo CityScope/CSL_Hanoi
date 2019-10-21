@@ -35,6 +35,7 @@ global {
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
+	bool table_interaction <- false;
 	int grid_height <- 8;
 	int grid_width <- 8;
 	string cityIOUrl;
@@ -119,7 +120,7 @@ global {
 		}
 	}
 	
-    reflex test_load_file_from_cityIO when: load_grid_file_from_cityIO and every(10#cycle) {
+    reflex test_load_file_from_cityIO when: table_interaction and load_grid_file_from_cityIO and every(10#cycle) {
 		if(launchpad){
 	      do load_cityIO_v2(cityIOUrl);
 		}else{
