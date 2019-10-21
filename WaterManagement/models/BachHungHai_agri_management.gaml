@@ -5,7 +5,7 @@
 * Tags: grid, load_file, asc
 */
 
-model watermanegement
+model watermanagement
 
 global {
 
@@ -304,14 +304,14 @@ species gate {
 	
 	aspect default {
 		if is_closed{
-			draw circle(0.75#km) color:  #red  border: #black;
+			draw circle(0.75#km)-circle(0.4#km) color:  #red  border: #black;
 		}else{
 			if self.type = "source" {
 				draw circle(0.75#km) color:  #blue  border: #black;
 			}else if self.type = "sink" {
 				draw circle(0.75#km) color:  #white  border: #black;
 			}else{
-				draw circle(0.75#km) color:  #green  border: #black;
+				draw circle(0.75#km)-circle(0.4#km) color:  #green  border: #black;
 			}
 		}
 	}
