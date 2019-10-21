@@ -179,7 +179,8 @@ global {
 			    y<-grid_height-1-int((int(i/ncols))/2);
 			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
 			    rot<-int(list<list>(cityMatrixData["grid"])[i][1]);
-			    if(id=1 or id=2 or id=3 or id=4){
+			    write id;
+			    if(id =0 or id=1 or id=2 or id=3){
 			     cell[x,y].type<-cellsMap.values[id];	
 			     if(rot=0 or rot=3){
 			     	ask gate overlapping cell[x,y]{
