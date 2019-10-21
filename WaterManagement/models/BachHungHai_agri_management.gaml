@@ -17,13 +17,11 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
-	map<int,string> cellsMap<-[1::"Fish", 2::"Rice",3::"Vegetables", 4::"Industrial", 5::"Urban"];
-	map<string,rgb> landuseMap<-["Other Unused Area"::#yellow, "Rural populated Area"::#yellow, "Water"::#blue, "Agriculture"::#green, "Other Forest"::#darkgreen, "Unused moutains and hills"::#darkgreen,"Human Influence"::#yellow
-	];
-	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
-	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
-	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
-	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90, cells_types[4]::30];
+	map<int,string> cellsMap<-[1::"Fishery", 2::"Rice",3::"Vegetables", 4::"Industrial"];
+	list<string> cells_types <- ["Fishery", "Rice","Vegetables", "Industrial"];
+	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red];
+	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0];
+	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
