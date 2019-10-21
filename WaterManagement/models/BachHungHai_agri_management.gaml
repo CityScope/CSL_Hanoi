@@ -20,7 +20,7 @@ global {
 	map<int,string> cellsMap<-[1::"Fishery", 2::"Rice",3::"Vegetables", 4::"Industrial"];
 	list<string> cells_types <- ["Fishery", "Rice","Vegetables", "Industrial"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red];
-	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0];
+	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::2.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
@@ -61,7 +61,7 @@ global {
 		dest <- gate where (each.type = "sink");
 		
 		ask gate {
-			controledRivers <- river overlapping self;
+			controledRivers <- river overlapping (0.4#km around self.location);
 		}
 		
 		the_river <- as_edge_graph(river);
@@ -73,6 +73,9 @@ global {
 			waterLevel <- 0;
 		}
 		ask water {
+			river(self.current_edge).waterLevel <- river(self.current_edge).waterLevel+1;
+		}
+		ask polluted_water {
 			river(self.current_edge).waterLevel <- river(self.current_edge).waterLevel+1;
 		}
 		probaEdges <- create_map(river as list, river collect(100/(1+each.waterLevel)));
@@ -95,7 +98,7 @@ global {
 		ask water where(each.current_edge != nil) {
 			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
 				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
-					create pollution {
+					create polluted_water {
 						location <- myself.location;
 						heading <- myself.heading;
 						color <- cells_colors[river(myself.current_edge).overlapping_cell.type] ;
@@ -105,7 +108,7 @@ global {
 			}
 		}	
 		
-		ask pollution where(each.current_edge != nil) {
+		ask polluted_water where(each.current_edge != nil) {
 			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
 				create static_pollution{
 					color <- myself.color;
@@ -113,7 +116,7 @@ global {
 					location <- any_location_in(3#km around(myself.location));
 				}
 				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
-					create pollution {
+					create polluted_water {
 						location <- myself.location;
 						heading <- myself.heading;
 						color <- cells_colors[river(myself.current_edge).overlapping_cell.type] ;
@@ -281,7 +284,7 @@ species water skills: [moving] {
 	}
 }
 
-species pollution parent: water {
+species polluted_water parent: water {
 	rgb color <- #red;
 }
 
@@ -290,7 +293,7 @@ species static_pollution{
 	int dissolution_expectancy <- 1000;
 	
 	aspect{
-		draw circle(0.2#km) color: color;
+		draw square(0.2#km) color: color;
 	}
 }
 
@@ -307,7 +310,7 @@ species river{
 	
 	aspect base{
 		if(showWaterLevel){
-			draw shape color: is_closed? #red:rgb(255-255*sqrt(min([waterLevel,8])/8),255-255*sqrt(min([waterLevel,8])/8),255) width:3;
+			draw shape color: is_closed? #red:rgb(235-235*sqrt(min([waterLevel,8])/8),235-235*sqrt(min([waterLevel,8])/8),255) width:3;
 		}else{
 		draw shape color: is_closed? #red:#blue width:1;	
 		}
@@ -362,8 +365,8 @@ experiment dev type: gui autorun:true{
 			species landuse aspect:base;
 			species cell aspect:base transparency: 0.2;	
 			species main_river aspect:base;			
-			species river aspect:base transparency: 0.6;
-			species pollution transparency: 0.2;
+			species river aspect:base transparency: 0.2;
+			species polluted_water transparency: 0.2;
 			species static_pollution transparency: 0.5;
 			species water transparency: 0.2;
 			
