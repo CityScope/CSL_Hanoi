@@ -359,6 +359,16 @@ experiment dev type: gui autorun:true{
                     draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                     y <- y + 25#px;
                 }
+                y<-y+50#px;
+                draw "Pollutante" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y<-y+25#px;
+                loop type over: cells_types
+                {
+                    draw circle(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                    y <- y + 15#px;
+                }
+                
                 y <- y + 50#px;
                 draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
             	y <- y + 25#px;
