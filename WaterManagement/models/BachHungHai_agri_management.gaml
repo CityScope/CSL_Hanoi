@@ -17,13 +17,11 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
-	map<int,string> cellsMap<-[1::"Fish", 2::"Rice",3::"Vegetables", 4::"Industrial", 5::"Urban"];
-	map<string,rgb> landuseMap<-["Other Unused Area"::#yellow, "Rural populated Area"::#yellow, "Water"::#blue, "Agriculture"::#green, "Other Forest"::#darkgreen, "Unused moutains and hills"::#darkgreen,"Human Influence"::#yellow
-	];
-	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
-	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
-	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
-	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90, cells_types[4]::30];
+	map<int,string> cellsMap<-[1::"Fishery", 2::"Rice",3::"Vegetables", 4::"Industrial"];
+	list<string> cells_types <- ["Fishery", "Rice","Vegetables", "Industrial"];
+	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red];
+	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0];
+	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
@@ -200,7 +198,7 @@ global {
 			    y<-grid_height-1-int((int(i/ncols))/2);
 			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
 			    rot<-int(list<list>(cityMatrixData["grid"])[i][1]);
-			    if(id!=-1){
+			    if(id=1 or id=2 or id=3 or id=4){
 			     cell[x,y].type<-cellsMap.values[id];	
 			     if(rot=0 or rot=3){
 			     	ask gate overlapping cell[x,y]{
@@ -390,6 +388,16 @@ experiment dev type: gui autorun:true{
                     draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                     y <- y + 25#px;
                 }
+                y<-y+50#px;
+                draw "Pollutante" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y<-y+25#px;
+                loop type over: cells_types
+                {
+                    draw circle(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                    y <- y + 15#px;
+                }
+                
                 y <- y + 50#px;
                 draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
             	y <- y + 25#px;
