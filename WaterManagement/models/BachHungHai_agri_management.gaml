@@ -92,9 +92,28 @@ global {
 		}
 	}
 	
+	
 	reflex water_consumption_and_pollution{
 		ask water where(each.current_edge != nil) {
 			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
+				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
+					create pollution {
+						location <- myself.location;
+						heading <- myself.heading;
+						color <- cells_colors[river(myself.current_edge).overlapping_cell.type] ;
+					}		
+				}	
+			do die;
+			}
+		}	
+		
+		ask pollution where(each.current_edge != nil) {
+			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
+				create static_pollution{
+					color <- myself.color;
+					//location <- myself.location;// any_location_in(circle(20#km));
+					location <- any_location_in(3#km around(myself.location));
+				}
 				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
 					create pollution {
 						location <- myself.location;
@@ -268,6 +287,15 @@ species pollution parent: water {
 	rgb color <- #red;
 }
 
+species static_pollution{
+	rgb color;
+	int dissolution_expectancy <- 1000;
+	
+	aspect{
+		draw circle(0.2#km) color: color;
+	}
+}
+
 species main_river{
 	aspect base{
 		draw shape color:#blue width:2;
@@ -338,6 +366,7 @@ experiment dev type: gui autorun:true{
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species pollution transparency: 0.2;
+			species static_pollution transparency: 0.5;
 			species water transparency: 0.2;
 			
 			
