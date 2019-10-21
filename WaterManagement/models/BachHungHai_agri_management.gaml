@@ -39,6 +39,7 @@ global {
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
+	bool table_interaction <- true;
 	int grid_height <- 8;
 	int grid_width <- 8;
 	string cityIOUrl;
@@ -128,7 +129,7 @@ global {
 		 
 	}
 	
-    reflex test_load_file_from_cityIO when: load_grid_file_from_cityIO and every(10#cycle) {
+    reflex test_load_file_from_cityIO when: table_interaction and load_grid_file_from_cityIO and every(10#cycle) {
 		if(launchpad){
 	      do load_cityIO_v2(cityIOUrl);
 		}else{
@@ -185,14 +186,20 @@ global {
 			     if(rot=0 or rot=3){
 			     	ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
-			     		  is_closed<-true;	
-			     		}	
+			     		    is_closed<-true;	
+			     			ask self.controledRivers {
+								self.is_closed <- true;
+						  	}
+			     		}
 			     	}
 			     	
 			     }else{
 			        ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
-			     		  is_closed<-false;	
+			     		 	is_closed<-false;
+			     			ask self.controledRivers {
+								self.is_closed <- false;
+							}
 			     		}
 			     	}	
 			     }
@@ -341,16 +348,30 @@ experiment dev type: gui autorun:true{
 			event["l"] action: {showLegend<-!showLegend;};
 			event["w"] action: {showWaterLevel<-!showWaterLevel;};
 			
-			overlay position: { 200#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
+			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
-            	//draw "CityScope Hanoi: Water Manegement" at: { 40#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
-            	float y <- 30#px;
+            	draw "CityScope Hanoi \nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
+            	
+            	float y <- 70#px;
+            	draw "Landuse" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y<-y+25#px;
                 loop type over: cells_types
                 {
                     draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
                     draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                     y <- y + 25#px;
                 }
+                y <- y + 50#px;
+                draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y <- y + 25#px;
+                draw circle(10#px) at: { 20#px, y } color: #green border: #black;
+                draw 'Open' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                y <- y + 25#px;
+                draw circle(10#px) at: { 20#px, y } color: #red border: #black;
+                draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                y <- y + 25#px;
+                draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	
             	}
                 
             }
