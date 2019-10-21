@@ -281,17 +281,32 @@ species water skills: [moving] {
 	
 	aspect default {
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
-		draw square(0.25#km)  color: color ;	
+		if !showWaterLevel{
+			draw square(0.25#km)  color: color;	
+		}
 	}
 }
 
 species polluted_water parent: water {
 	rgb color <- #red;
+	
+	
+	aspect default {
+		draw square(0.25#km)  color: color;	
+	}
 }
 
 species static_pollution{
 	rgb color;
 	int dissolution_expectancy <- 1000;
+	
+	reflex remove_pollution{
+		dissolution_expectancy <- dissolution_expectancy - 1;
+		if dissolution_expectancy < 0 {
+			do die;
+		}
+		
+	}
 	
 	aspect{
 		draw square(0.2#km) color: color;
