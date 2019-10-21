@@ -164,13 +164,24 @@ global {
 		int x;
 		int y;
 		int id;
+		int rot;
 		loop i from:0 to: (ncols*nrows)-1{ 
 			if((i mod nrows) mod 2 = 0 and int(i/ncols) mod 2 = 0){   
 				x<- grid_width-1-int((i mod nrows)/2);
 			    y<-grid_height-1-int((int(i/ncols))/2);
 			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
+			    rot<-int(list<list>(cityMatrixData["grid"])[i][1]);
 			    if(id!=-1){
 			     cell[x,y].type<-cellsMap.values[id];	
+			     if(rot=0 or rot=3){
+			     	ask gate overlapping cell[x,y]{
+			     		is_closed<-true;
+			     	}
+			     }else{
+			        ask gate overlapping cell[x,y]{
+			     		is_closed<-false;
+			     	}	
+			     }
 			    }  
 			 } 		
        }	
@@ -302,10 +313,8 @@ experiment dev type: gui autorun:true{
 			
 			overlay position: { 200#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
-            	draw "CityScope\nHanoi Water Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
-            	float y <- 70#px;
-                draw "Landuse" at: { 0#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-            	y <- y + 25#px;
+            	//draw "CityScope Hanoi: Water Manegement" at: { 40#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
+            	float y <- 30#px;
                 loop type over: cells_types
                 {
                     draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
