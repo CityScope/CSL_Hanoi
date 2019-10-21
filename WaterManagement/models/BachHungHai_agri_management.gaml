@@ -193,9 +193,9 @@ grid cell width: 8 height: 8 {
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
-				draw shape*0.75 color:color;	
+				draw shape color:color;	
 			}else{
-			  	draw shape*0.75 color:cells_colors[type];	
+			  	draw shape color:cells_colors[type];	
 			}	
 		}
 	}
@@ -300,13 +300,14 @@ experiment dev type: gui autorun:true{
 			event["l"] action: {showLegend<-!showLegend;};
 			event["w"] action: {showWaterLevel<-!showWaterLevel;};
 			
-			overlay position: { 5, 5 } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
+			overlay position: { 200#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
+            	//draw "CityScope Hanoi: Water Manegement" at: { 40#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
             	float y <- 30#px;
                 loop type over: cells_types
                 {
-                    draw square(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
-                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("SansSerif", 12);
+                    draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                     y <- y + 25#px;
                 }
             	}
