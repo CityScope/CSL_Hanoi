@@ -302,8 +302,10 @@ experiment dev type: gui autorun:true{
 			
 			overlay position: { 200#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
-            	//draw "CityScope Hanoi: Water Manegement" at: { 40#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
-            	float y <- 30#px;
+            	draw "CityScope\nHanoi Water Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
+            	float y <- 70#px;
+                draw "Landuse" at: { 0#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y <- y + 25#px;
                 loop type over: cells_types
                 {
                     draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
