@@ -35,7 +35,7 @@ global {
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
-	bool table_interaction <- false;
+	bool table_interaction <- true;
 	int grid_height <- 8;
 	int grid_width <- 8;
 	string cityIOUrl;
