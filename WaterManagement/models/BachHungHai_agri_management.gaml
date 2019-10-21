@@ -12,11 +12,14 @@ global {
 	file gates_shape_file <- shape_file("../includes/BachHungHaiData/gates.shp");
 	file rivers_shape_file <- shape_file("../includes/BachHungHaiData/rivers.shp");
 	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers.shp");
+	file landuse_shape_file <- shape_file("../includes/VNM_adm/VNM_adm4.shp");
 	
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
 	map<int,string> cellsMap<-[1::"Fish", 2::"Rice",3::"Vegetables", 4::"Industrial", 5::"Urban"];
+	map<string,rgb> landuseMap<-["Other Unused Area"::#yellow, "Rural populated Area"::#yellow, "Water"::#blue, "Agriculture"::#green, "Other Forest"::#darkgreen, "Unused moutains and hills"::#darkgreen,"Human Influence"::#yellow
+	];
 	list<string> cells_types <- ["Fish", "Rice","Vegetables", "Industrial", "Urban"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#darkblue, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red, cells_types[4]::#orange ];
 	map<string, float> cells_withdrawal <- [cells_types[0]::1.0, cells_types[1]::4.0,cells_types[2]::0.5, cells_types[3]::8.0, cells_types[4]::2.0];
@@ -24,7 +27,8 @@ global {
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
-	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false; 
+	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
+	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true;  
 	
 	list<gate> source;
 	list<gate> dest;
@@ -44,6 +48,7 @@ global {
 		create main_river from:main_rivers_shape_file;
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
+		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]; 
 		
 		ask cell {
 			do init_cell;
@@ -116,7 +121,11 @@ global {
 				int old_type <- index_of(cells_types, selected_cell.type);
 				selected_cell.type <- cells_types[mod(index_of(cells_types, selected_cell.type)+1,length(cells_types))];
 			}
+			ask landuse overlapping selected_cell{
+			  self.color<-cells_colors[selected_cell.type];
+			}
 		}
+		 
 	}
 	
     reflex test_load_file_from_cityIO when: load_grid_file_from_cityIO and every(10#cycle) {
@@ -177,15 +186,18 @@ global {
 			     	ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
 			     		  is_closed<-true;	
-			     		}
-			     		
+			     		}	
 			     	}
+			     	
 			     }else{
 			        ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
 			     		  is_closed<-false;	
 			     		}
 			     	}	
+			     }
+			     ask landuse overlapping cell[x,y]{
+			     		self.color<-cells_colors[cell[x,y].type];
 			     }
 			    }  
 			 } 		
@@ -299,15 +311,28 @@ species gate {
 }
 
 
+species landuse{
+	string type;
+	rgb color;
+	aspect base{
+		if(showLanduse){
+		  draw shape color:color border:#black;	
+		}	
+	}
+}
+
+
 experiment dev type: gui autorun:true{
 	output {
-		display "Bac" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle)
+		display "Bac" type: opengl draw_env:false background:#white synchronized:true refresh: every(1#cycle)
 		{
+			species landuse aspect:base;
 			species cell aspect:base transparency: 0.2;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species pollution transparency: 0.2;
 			species water transparency: 0.2;
+			
 			
 			species gate;
 			
