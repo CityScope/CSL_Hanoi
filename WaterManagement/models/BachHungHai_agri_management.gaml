@@ -176,14 +176,20 @@ global {
 			     if(rot=0 or rot=3){
 			     	ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
-			     		  is_closed<-true;	
+			     			is_closed<-true;
+			     			ask self.controledRivers {
+								self.is_closed <- true;
+						  	}
 			     		}
 			     		
 			     	}
 			     }else{
 			        ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
-			     		  is_closed<-false;	
+			     		 	is_closed<-false;
+			     			ask self.controledRivers {
+								self.is_closed <- false;
+							}
 			     		}
 			     	}	
 			     }
