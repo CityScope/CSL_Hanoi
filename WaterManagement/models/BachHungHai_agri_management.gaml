@@ -25,7 +25,7 @@ global {
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
-	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
+	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true;  
 	
 	list<gate> source;
@@ -378,7 +378,7 @@ experiment dev type: gui autorun:true{
 	output {
 		display "Bac" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle)
 		{
-			species landuse aspect:base transparency:0.7;
+			species landuse aspect:base transparency:0.6;
 			species cell aspect:base transparency: 0.6;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.2;
