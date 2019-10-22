@@ -26,14 +26,19 @@ global {
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
 	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
-	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true;  
+	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
+	
+		// Network
+	int scaningUDPPort <- 5000;
+	string url <- "localhost";
+	bool udpScannerReader <- false;  
 	
 	list<gate> source;
 	list<gate> dest;
 	
 	map<river,float> probaEdges;
 	
-	int evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 1 min: 1 max:10000 <- 2000 ;
+	int evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 1 min: 1 max:10000 <- 1000 ;
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
@@ -66,6 +71,13 @@ global {
 		
 		the_river <- as_edge_graph(river);
 		probaEdges <- create_map(river as list,list_with(length(river),100.0));
+		
+		if(udpScannerReader){
+			create NetworkingAgent number: 1 {
+			 type <-"scanner";	
+		     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
+		    }
+		}
 	}
 	
 	reflex manage_water  {
@@ -352,6 +364,23 @@ species landuse{
 		if(showLanduse){
 		  draw shape color:color border:#black;	
 		}	
+	}
+}
+
+species NetworkingAgent skills:[network] {
+	string type;
+	string previousMess <-"";
+	reflex fetch when:has_more_message() {	
+		if (length(mailbox) > 0) {
+			message s <- fetch_message();
+			if(s.contents !=previousMess){	
+			  previousMess<-s.contents;
+			  if(type="interface"){
+			  	evaporationAvgTime<-1+int(previousMess)/5*10000;
+			  	write evaporationAvgTime;
+			  }
+			}	
+	    }
 	}
 }
 
