@@ -24,7 +24,7 @@ global {
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
-	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
+	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
 	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true;  
 	
@@ -201,7 +201,7 @@ global {
 			    write id;
 			    if(id =0 or id=1 or id=2 or id=3){
 			     cell[x,y].type<-cellsMap.values[id];	
-			     if(rot=0 or rot=3){
+			     if(rot=1 or rot=3){
 			     	ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
 			     		    is_closed<-true;	
@@ -358,10 +358,10 @@ species landuse{
 
 experiment dev type: gui autorun:true{
 	output {
-		display "Bac" type: opengl draw_env:false background:#white synchronized:true refresh: every(1#cycle)
+		display "Bac" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle)
 		{
-			species landuse aspect:base;
-			species cell aspect:base transparency: 0.2;	
+			species landuse aspect:base transparency:0.7;
+			species cell aspect:base transparency: 0.6;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.6;
 			species pollution transparency: 0.2;
@@ -376,11 +376,17 @@ experiment dev type: gui autorun:true{
 			event["l"] action: {showLegend<-!showLegend;};
 			event["w"] action: {showWaterLevel<-!showWaterLevel;};
 			
+			graphics 'background'{
+				draw shape color:#white;
+			}
+			
 			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
             	draw "CityScope Hanoi \nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
             	
             	float y <- 70#px;
+            	draw "INTERACTION" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y<-y+25#px;
             	draw "Landuse" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
             	y<-y+25#px;
                 loop type over: cells_types
@@ -388,15 +394,6 @@ experiment dev type: gui autorun:true{
                     draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
                     draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                     y <- y + 25#px;
-                }
-                y<-y+50#px;
-                draw "Pollutante" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            	y<-y+25#px;
-                loop type over: cells_types
-                {
-                    draw circle(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
-                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                    y <- y + 15#px;
                 }
                 
                 y <- y + 50#px;
@@ -409,7 +406,20 @@ experiment dev type: gui autorun:true{
                 draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                 y <- y + 25#px;
                 draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            	
+            
+                y<-y+75#px;
+                draw "OUTPUT" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+                y<-y+25#px;
+                draw "Pollutante" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+            	y<-y+25#px;
+                loop type over: cells_types
+                {
+                    draw circle(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                    y <- y + 15#px;
+                }
+                
+         	
             	}
                 
             }
