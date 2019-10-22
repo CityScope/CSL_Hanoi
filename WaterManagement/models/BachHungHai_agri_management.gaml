@@ -414,13 +414,13 @@ experiment dev type: gui autorun:true{
                     y <- y + 25#px;
                 }
                 
-                y <- y + 50#px;
+                y <- y + 25#px;
                 draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
             	y <- y + 25#px;
-                draw circle(10#px) at: { 20#px, y } color: #green border: #black;
+                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #green border: #black;
                 draw 'Open' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                 y <- y + 25#px;
-                draw circle(10#px) at: { 20#px, y } color: #red border: #black;
+                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #red border: #black;
                 draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                 y <- y + 25#px;
                 draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
@@ -432,7 +432,7 @@ experiment dev type: gui autorun:true{
             	y<-y+25#px;
                 loop type over: cells_types
                 {
-                    draw circle(5#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+                    draw circle(4#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
                     draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                     y <- y + 15#px;
                 }
