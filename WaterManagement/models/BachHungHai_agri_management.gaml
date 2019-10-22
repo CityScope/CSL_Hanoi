@@ -25,14 +25,14 @@ global {
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 
-	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
+	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
 	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
 		// Network
-	int scaningUDPPort <- 5000;
+	int scaningUDPPort <- 9878;
 	string url <- "localhost";
-	bool udpScannerReader <- false;  
+	bool udpScannerReader <- true;  
 
 	
 	list<gate> source;
@@ -40,7 +40,7 @@ global {
 	
 	map<river,float> probaEdges;
 	
-	int evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 1 min: 1 max:10000 <- 1000 ;
+	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 1000.0 ;
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
@@ -125,6 +125,7 @@ global {
 		ask polluted_water where(each.current_edge != nil) {
 			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
 				create static_pollution{
+					dissolution_expectancy<-evaporationAvgTime;
 					color <- myself.color;
 					//location <- myself.location;// any_location_in(circle(20#km));
 					location <- any_location_in(3#km around(myself.location));
@@ -215,7 +216,7 @@ global {
 			    y<-grid_height-1-int((int(i/ncols))/2);
 			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
 			    rot<-int(list<list>(cityMatrixData["grid"])[i][1]);
-			    write id;
+			   // write id;
 			    if(id =0 or id=1 or id=2 or id=3){
 			     cell[x,y].type<-cellsMap.values[id];	
 			     if(rot=1 or rot=3){
@@ -312,7 +313,7 @@ species polluted_water parent: water {
 
 species static_pollution{
 	rgb color;
-	int dissolution_expectancy <- 1000;
+	float dissolution_expectancy;
 	
 	reflex remove_pollution{
 		dissolution_expectancy <- dissolution_expectancy - 1;
@@ -388,6 +389,7 @@ species landuse{
 }
 
 species NetworkingAgent skills:[network] {
+	
 	string type;
 	string previousMess <-"";
 	reflex fetch when:has_more_message() {	
@@ -395,10 +397,10 @@ species NetworkingAgent skills:[network] {
 			message s <- fetch_message();
 			if(s.contents !=previousMess){	
 			  previousMess<-s.contents;
-			  if(type="interface"){
-			  	evaporationAvgTime<-1+int(previousMess)/5*10000;
-			  	write evaporationAvgTime;
-			  }
+			  	evaporationAvgTime<-2.0+float(previousMess)/5.0*10000;
+			  	//write previousMess;
+			  	//write evaporationAvgTime;
+			  
 			}	
 	    }
 	}
