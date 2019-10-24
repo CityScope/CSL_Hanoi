@@ -54,7 +54,9 @@ global {
 		create main_river from:main_rivers_shape_file;
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
-		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]; 
+		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
+			shape<-(simplification(shape,100));
+		}
 		
 		ask cell {
 			do init_cell;
@@ -428,7 +430,7 @@ experiment dev type: gui autorun:true{
 			event["w"] action: {showWaterLevel<-!showWaterLevel;};
 			
 			graphics 'background'{
-				draw shape color:#white;
+				draw shape color:#white at:{location.x,location.y,-10};
 			}
 			
 			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
