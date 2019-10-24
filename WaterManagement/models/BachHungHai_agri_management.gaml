@@ -19,14 +19,14 @@ global {
 	
 	map<int,string> cellsMap<-[1::"Fishery", 2::"Rice",3::"Vegetables", 4::"Industrial"];
 	list<string> cells_types <- ["Fishery", "Rice","Vegetables", "Industrial"];
-	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#green,cells_types[2]::#darkgreen, cells_types[3]::#red];
+	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::2.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
-	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
+	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
 		// Network
@@ -316,7 +316,7 @@ species static_pollution{
 	float dissolution_expectancy;
 	
 	reflex remove_pollution{
-		dissolution_expectancy <- dissolution_expectancy - 1;
+		dissolution_expectancy <- dissolution_expectancy - 10;
 		if dissolution_expectancy < 0 {
 			do die;
 		}
@@ -367,9 +367,9 @@ species gate {
 			draw circle(0.75#km)-circle(0.4#km) color:  #red  border: #black;
 		}else{
 			if self.type = "source" {
-				draw circle(0.75#km) color:  #blue  border: #black;
+				draw circle(0.75#km) - circle(0.40#km) color:  #cyan  border: #black;
 			}else if self.type = "sink" {
-				draw circle(0.75#km) color:  #white  border: #black;
+				draw circle(0.75#km) - circle(0.40#km) color:  #white  border: #black;
 			}else{
 				draw circle(0.75#km)-circle(0.4#km) color:  #green  border: #black;
 			}
@@ -378,11 +378,11 @@ species gate {
 }
 
 
-species landuse{
+species landuse schedules:[]{
 	string type;
 	rgb color;
 	aspect base{
-		if(showLanduse){
+		if(evaporationAvgTime>2000){
 		  draw shape color:color border:#black;	
 		}	
 	}
@@ -397,7 +397,7 @@ species NetworkingAgent skills:[network] {
 			message s <- fetch_message();
 			if(s.contents !=previousMess){	
 			  previousMess<-s.contents;
-			  	evaporationAvgTime<-2.0+float(previousMess)/5.0*10000;
+			  	evaporationAvgTime<-2.0+float(previousMess)/5.0*5000;
 			  	//write previousMess;
 			  	//write evaporationAvgTime;
 			  
@@ -411,7 +411,7 @@ experiment dev type: gui autorun:true{
 	output {
 		display "Bac" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle)
 		{
-			species landuse aspect:base transparency:0.6;
+			species landuse aspect:base transparency:0.65;
 			species cell aspect:base transparency: 0.6;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.2;
@@ -447,14 +447,22 @@ experiment dev type: gui autorun:true{
                     y <- y + 25#px;
                 }
                 
+             
+                
                 y <- y + 25#px;
                 draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
             	y <- y + 25#px;
                 draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #green border: #black;
                 draw 'Open' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                
+                draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #cyan border: #black;
+                draw 'Source' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                 y <- y + 25#px;
                 draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #red border: #black;
                 draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                
+                 draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #white border: #black;
+                draw 'Sink' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                 y <- y + 25#px;
                 draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
             
