@@ -40,7 +40,7 @@ global {
 	
 	map<river,float> probaEdges;
 	
-	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 1000.0 ;
+	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 2500.0 ;
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
