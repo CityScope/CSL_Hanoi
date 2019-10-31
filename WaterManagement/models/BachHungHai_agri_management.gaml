@@ -13,6 +13,7 @@ global {
 	file rivers_shape_file <- shape_file("../includes/BachHungHaiData/rivers.shp");
 	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers.shp");
 	file landuse_shape_file <- shape_file("../includes/VNM_adm/VNM_adm4.shp");
+	file imageRaster <- file('../images/pumpkin_medium.png');
 	
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
@@ -26,7 +27,7 @@ global {
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
-	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
+	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
 		// Network
@@ -40,7 +41,7 @@ global {
 	
 	map<river,float> probaEdges;
 	
-	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 2500.0 ;
+	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 1000.0 ;
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
@@ -299,7 +300,8 @@ species water skills: [moving] {
 	aspect default {
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
 		if !showWaterLevel{
-			draw square(0.25#km)  color: color;	
+			draw square(0.25#km)  color: color;
+			draw imageRaster size:2#km;	
 		}
 	}
 }
