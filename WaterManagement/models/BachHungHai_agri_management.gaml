@@ -13,7 +13,6 @@ global {
 	file rivers_shape_file <- shape_file("../includes/BachHungHaiData/rivers.shp");
 	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers.shp");
 	file landuse_shape_file <- shape_file("../includes/VNM_adm/VNM_adm4.shp");
-	file imageRaster <- file('../images/pumpkin_medium.png');
 	
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
@@ -27,7 +26,7 @@ global {
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
-	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-false;
+	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
 		// Network
@@ -41,7 +40,7 @@ global {
 	
 	map<river,float> probaEdges;
 	
-	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 1000.0 ;
+	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 2500.0 ;
 	
 	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
@@ -300,9 +299,9 @@ species water skills: [moving] {
 	aspect default {
 //		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
 		if !showWaterLevel{
-			draw square(0.25#km)  color: color;
-			draw imageRaster size:2#km;	
+			
 		}
+		draw square(0.25#km)  color: color;	
 	}
 }
 
@@ -344,11 +343,12 @@ species river{
 	cell overlapping_cell;
 	
 	aspect base{
-		if(showWaterLevel){
+		/*if(showWaterLevel){
 			draw shape color: is_closed? #red:rgb(235-235*sqrt(min([waterLevel,8])/8),235-235*sqrt(min([waterLevel,8])/8),255) width:3;
 		}else{
-		draw shape color: is_closed? #red:#blue width:1;	
-		}
+		    draw shape color: is_closed? #red:#blue width:1;	
+		}*/
+			draw shape color: is_closed? #red:rgb(235-235*sqrt(min([waterLevel,8])/8),235-235*sqrt(min([waterLevel,8])/8),255) width:3;
 		
 	}
 }
