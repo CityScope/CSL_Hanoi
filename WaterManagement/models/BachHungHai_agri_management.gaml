@@ -203,7 +203,7 @@ global {
 		try {
 			cityMatrixData <- json_file(cityIOUrl_).contents;
 		} catch {
-			cityMatrixData <- json_file("../includes/cityIO_Urbam.json").contents;
+			cityMatrixData <- json_file("../includes/urbam.json").contents;
 			write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json";
 		}
 		int ncols <- int(map(map(cityMatrixData["header"])["spatial"])["ncols"]);
