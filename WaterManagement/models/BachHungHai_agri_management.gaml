@@ -24,6 +24,7 @@ global {
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
     bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
+    bool showOutput parameter: 'Show Output' category: "Parameters" <-true;
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
 	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
@@ -117,7 +118,7 @@ global {
 					create polluted_water {
 						location <- myself.location;
 						heading <- myself.heading;
-						color <- cells_colors[river(myself.current_edge).overlapping_cell.type] ;
+						type<-river(myself.current_edge).overlapping_cell.type;
 					}		
 				}	
 			do die;
@@ -307,10 +308,10 @@ species water skills: [moving] {
 
 species polluted_water parent: water {
 	rgb color <- #red;
-	
+	string type;
 	
 	aspect default {
-		draw square(0.25#km)  color: color;	
+		draw square(0.25#km)  color: cells_colors[type];	
 	}
 }
 
@@ -437,55 +438,66 @@ experiment dev type: gui autorun:true{
 			
 			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
             {   if(showLegend){
-            	draw "CityScope Hanoi \nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
-            	
-            	float y <- 70#px;
-            	draw "INTERACTION" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            	y<-y+25#px;
-            	draw "Landuse" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            	y<-y+25#px;
-                loop type over: cells_types
-                {
-                    draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
-                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                    y <- y + 25#px;
-                }
-                
-             
-                
-                y <- y + 25#px;
-                draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            	y <- y + 25#px;
-                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #green border: #black;
-                draw 'Open' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                
-                draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #cyan border: #black;
-                draw 'Source' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                y <- y + 25#px;
-                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #red border: #black;
-                draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                
-                 draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #white border: #black;
-                draw 'Sink' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                y <- y + 25#px;
-                draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            
-                y<-y+75#px;
-                draw "OUTPUT" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-                y<-y+25#px;
-                draw "Pollutante" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-            	y<-y+25#px;
-                loop type over: cells_types
-                {
-                    draw circle(4#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
-                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-                    y <- y + 15#px;
-                }
-                
-         	
+	            	draw "CityScope Hanoi" at: { 0#px,  4#px } color: #white font: font("Helvetica", 32,#bold);
+	            	draw "\nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	
+	            	float y <- 70#px;
+	            	draw "INTERACTION" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	y<-y+25#px;
+	            	draw "Landuse" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	y<-y+25#px;
+	                loop type over: cells_types
+	                {
+	                    draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+	                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                    y <- y + 25#px;
+	                }
+	                
+	             
+	                
+	                y <- y + 25#px;
+	                draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	y <- y + 25#px;
+	                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #green border: #black;
+	                draw 'Open' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                
+	                draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #cyan border: #black;
+	                draw 'Source' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                y <- y + 25#px;
+	                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #red border: #black;
+	                draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                
+	                 draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #white border: #black;
+	                draw 'Sink' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                y <- y + 25#px;
+	                draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            
+            	} 
+            	if(showOutput){
+            		float xOutput<-1000#px;
+	            	
+	            	float y <- 70#px;
+	            	y<-y+75#px;
+	                draw "OUTPUT" at: { xOutput+0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	                y<-y+25#px;
+	                draw "Pollutante" at: { xOutput+0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	y<-y+25#px;
+	                loop type over: cells_types
+	                {
+	                    draw circle(4#px) at: { xOutput+20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+	                    draw string(type) + ": " +length(polluted_water where (each.type= type)) at: { xOutput+40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                    y <- y + 15#px;
+	                }
+	                 y <- y + 25#px;
+               	 	draw string("Evaporation rate") at: { xOutput+0#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+                	y <- y + 25#px;
+                	draw rectangle(200#px,2#px) at: { xOutput+50#px, y } color: #white;
+                	draw rectangle(2#px,10#px) at: { xOutput+(evaporationAvgTime/10000.0)*90#px, y } color: #white;
+            		
             	}
-                
             }
+            
+
 		}
 	} 
 }
