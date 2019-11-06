@@ -491,8 +491,8 @@ experiment dev type: gui autorun:true{
 	                 y <- y + 25#px;
                	 	draw string("Evaporation rate") at: { xOutput+0#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
                 	y <- y + 25#px;
-                	draw rectangle(200#px,2#px) at: { xOutput+50#px, y } color: #white;
-                	draw rectangle(2#px,10#px) at: { xOutput+(evaporationAvgTime/10000.0)*90#px, y } color: #white;
+                	draw rectangle(200#px,2#px) at: { xOutput+100#px, y } color: #white;
+                	draw rectangle(2#px,10#px) at: { xOutput+(evaporationAvgTime/10000.0)*200#px, y } color: #white;
             		
             	}
             }
