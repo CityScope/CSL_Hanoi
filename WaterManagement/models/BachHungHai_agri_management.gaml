@@ -474,9 +474,9 @@ experiment dev type: gui autorun:true{
 	            
             	} 
             	if(showOutput){
-            		float xOutput<-1000#px;
+            		float xOutput<-1550#px;
 	            	
-	            	float y <- 70#px;
+	            	float y <- 300#px;
 	            	y<-y+75#px;
 	                draw "OUTPUT" at: { xOutput+0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	                y<-y+25#px;
