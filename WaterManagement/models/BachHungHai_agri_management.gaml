@@ -17,8 +17,8 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
-	map<int,string> cellsMap<-[1::"Fishery", 2::"Rice",3::"Vegetables", 4::"Industrial"];
-	list<string> cells_types <- ["Fishery", "Rice","Vegetables", "Industrial"];
+	map<int,string> cellsMap<-[1::"Aquaculture", 2::"Rice",3::"Vegetables", 4::"Industrial"];
+	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial"];
 	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::2.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
