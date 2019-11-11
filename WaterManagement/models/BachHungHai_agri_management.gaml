@@ -31,13 +31,12 @@ global {
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
 	// Network
-	int scaningUDPPort <- 9878;
+	int scaningUDPPort <- 9877;
 	string url <- "localhost";
 	bool udpScannerReader <- true;  
 
 	string cityIOUrl;	
-	bool load_grid_file_from_cityIO <-true;
-	bool load_grif_file_from_local <- false;
+	bool load_grid_file_from_cityIO <-false;
 	bool launchpad<-false;
 	bool table_interaction <- true;
 	
@@ -203,17 +202,12 @@ global {
 		map<string, unknown> cityMatrixData;
 	    list<map<string, int>> cityMatrixCell;	
 	    
-	    if(!load_grif_file_from_local) {
-			try {
-				cityMatrixData <- json_file(cityIOUrl_).contents;
-			} catch {
-				cityMatrixData <- json_file("../includes/urbam.json").contents;
-				write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json";
-			}	    	
-	    } else {
-				cityMatrixData <- json_file("../includes/urbam.json").contents;	  
-				write "offline";  	
-	    }
+		try {
+			cityMatrixData <- json_file(cityIOUrl_).contents;
+		} catch {
+			cityMatrixData <- json_file("../includes/urbam.json").contents;
+			write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json"; 	
+    	}
 
 		int ncols <- int(map(map(cityMatrixData["header"])["spatial"])["ncols"]);
 		int nrows <- int(map(map(cityMatrixData["header"])["spatial"])["nrows"]);
@@ -405,9 +399,12 @@ species NetworkingAgent skills:[network] {
 	
 	string type;
 	string previousMess <-"";
-	reflex fetch when:has_more_message() {	
+	
+	reflex fetch when:false and has_more_message() {	
+		
 		if (length(mailbox) > 0) {
 			message s <- fetch_message();
+			write "fetch messages " + s.contents;
 			if(s.contents != previousMess){
 				
 				string st <- s.contents; 
@@ -418,6 +415,64 @@ species NetworkingAgent skills:[network] {
 			}	
 	    }
 	}
+	
+	reflex update_landuse when: true and has_more_message() {
+		list<list<int>> scan_result <- [];    
+	    
+	    if (length(mailbox) > 0) {
+			message mes <- fetch_message();				
+ 			list m <- string(mes.contents) split_with('[, ]');
+ 			loop i from:0 to: length(m)-2 step: 2 {
+ 				scan_result <+ [int(m[i]),int(m[i+1])];
+			}
+ 	//		write(scan_result);
+			
+			int ncols <- sqrt(length(scan_result)) as int ;
+			int nrows <- sqrt(length(scan_result)) as int;	    
+			int x;
+			int y;
+			int id;
+			int rot;
+			loop i from: 0 to: length(scan_result) - 1 {
+				if ((i mod nrows) mod 2 = 0 and int(i / ncols) mod 2 = 0) {
+					x <- grid_width - 1 - int((i mod nrows) / 2);
+					y <- grid_height - 1 - int((int(i / ncols)) / 2);
+					
+					write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];
+					
+					id <- scan_result[i][0];
+					rot <- scan_result[i][1];
+					// write id;
+					if (id = 0 or id = 1 or id = 2 or id = 3) {
+						cell[x, y].type <- cellsMap.values[id];
+						if (rot = 1 or rot = 3) {
+							ask gate overlapping cell[x, y] {
+								if (self.type != "source" and self.type != "sink") {
+									is_closed <- true;
+									ask self.controledRivers {
+										self.is_closed <- true;
+									}
+								}
+							}
+						} else {
+							ask gate overlapping cell[x, y] {
+								if (self.type != "source" and self.type != "sink") {
+									is_closed <- false;
+									ask self.controledRivers {
+										self.is_closed <- false;
+									}
+								}
+							}
+						}
+	
+						ask landuse overlapping cell[x, y] {
+							self.color <- cells_colors[cell[x, y].type];
+						}
+					}
+				}
+			} 
+		} 
+	} 
 }
 
 
@@ -520,14 +575,6 @@ experiment CityScope type: gui autorun:true parent:dev{
 	} 
 }
 
-
-experiment dev_Hanoi type: gui autorun: true parent: dev {
-	parameter "Local connection" var: load_grif_file_from_local <- true category: "Network";
-}
-
-experiment demo_Hanoi type: gui autorun: true parent: CityScope {
-	parameter "Local connection" var: load_grif_file_from_local <- true category: "Network";	
-}
 
 //////////////////////////////////////////////////////////// TO CLEAN //////////////////////////////////////////////////////////
 
