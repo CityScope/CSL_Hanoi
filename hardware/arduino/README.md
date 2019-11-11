@@ -1,6 +1,6 @@
 # City_Hanoi Exposition set - GAMA Connector
 
-This folder aim to give a plug-n-play stack to connect hardware to the GAMA simulation
+This folder aims to give a plug-n-play stack to connect hardware to the GAMA simulation
 
 ## Getting Started
 
@@ -8,7 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Before starting and to use this code, you'll need to have all of these software :
+Before starting and to use this code, you'll need to have all of these softwares:
 
 * [Arduino IDE](https://www.arduino.cc/en/Main/Software)
 * [Processing](https://processing.org/download/)
