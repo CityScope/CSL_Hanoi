@@ -12,7 +12,7 @@ global {
 	file gates_shape_file <- shape_file("../includes/BachHungHaiData/gates.shp");
 	file rivers_shape_file <- shape_file("../includes/BachHungHaiData/rivers.shp");
 	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers.shp");
-	file landuse_shape_file <- shape_file("../includes/VNM_adm/VNM_adm4.shp");
+	file landuse_shape_file <- shape_file("../includes/BachHungHaiData/VNM_adm4.shp");
 	
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
@@ -30,11 +30,16 @@ global {
 	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
-		// Network
+	// Network
 	int scaningUDPPort <- 9878;
 	string url <- "localhost";
 	bool udpScannerReader <- true;  
 
+	string cityIOUrl;	
+	bool load_grid_file_from_cityIO <-true;
+	bool load_grif_file_from_local <- false;
+	bool launchpad<-false;
+	bool table_interaction <- true;
 	
 	list<gate> source;
 	list<gate> dest;
@@ -42,13 +47,9 @@ global {
 	map<river,float> probaEdges;
 	
 	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 2500.0 ;
-	
-	bool load_grid_file_from_cityIO <-true;
-	bool launchpad<-false;
-	bool table_interaction <- true;
+		
 	int grid_height <- 8;
 	int grid_width <- 8;
-	string cityIOUrl;
 	
 	init{
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
@@ -201,12 +202,19 @@ global {
 	action load_cityIO_v2_urbam(string cityIOUrl_) {
 		map<string, unknown> cityMatrixData;
 	    list<map<string, int>> cityMatrixCell;	
-		try {
-			cityMatrixData <- json_file(cityIOUrl_).contents;
-		} catch {
-			cityMatrixData <- json_file("../includes/urbam.json").contents;
-			write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json";
-		}
+	    
+	    if(!load_grif_file_from_local) {
+			try {
+				cityMatrixData <- json_file(cityIOUrl_).contents;
+			} catch {
+				cityMatrixData <- json_file("../includes/urbam.json").contents;
+				write #current_error + "Connection to Internet lost or cityIO is offline - CityMatrix is a local version from cityIO_gama.json";
+			}	    	
+	    } else {
+				cityMatrixData <- json_file("../includes/urbam.json").contents;	  
+				write "offline";  	
+	    }
+
 		int ncols <- int(map(map(cityMatrixData["header"])["spatial"])["ncols"]);
 		int nrows <- int(map(map(cityMatrixData["header"])["spatial"])["nrows"]);
 		int x;
@@ -509,6 +517,15 @@ experiment CityScope type: gui autorun:true parent:dev{
 		keystone: [{0.10098673129882907,0.05004077744224389,0.0},{0.13085030058460204,0.8869230259426092,0.0},{0.7411067492484581,0.8996998306504457,0.0},{0.7684598972967126,0.05583045771934214,0.0}]
 		{}
 	} 
+}
+
+
+experiment dev_Hanoi type: gui autorun: true parent: dev {
+	parameter "Local connection" var: load_grif_file_from_local <- true category: "Network";
+}
+
+experiment demo_Hanoi type: gui autorun: true parent: CityScope {
+	parameter "Local connection" var: load_grif_file_from_local <- true category: "Network";	
 }
 
 //////////////////////////////////////////////////////////// TO CLEAN //////////////////////////////////////////////////////////
