@@ -408,12 +408,13 @@ species NetworkingAgent skills:[network] {
 	reflex fetch when:has_more_message() {	
 		if (length(mailbox) > 0) {
 			message s <- fetch_message();
-			if(s.contents !=previousMess){	
-			  previousMess<-s.contents;
+			if(s.contents != previousMess){
+				
+				string st <- s.contents; 
+				write(st split_with "-");
+				
+			  	previousMess<-s.contents;
 			  	evaporationAvgTime<-2.0+float(previousMess)/5.0*5000;
-			  	//write previousMess;
-			  	//write evaporationAvgTime;
-			  
 			}	
 	    }
 	}
