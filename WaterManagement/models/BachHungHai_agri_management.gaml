@@ -27,7 +27,7 @@ global {
     bool showOutput parameter: 'Show Output' category: "Parameters" <-true;
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
-	bool showWaterLevel parameter: 'Show Water Level' category: "Parameters" <-true;
+	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
 	// Network
@@ -36,7 +36,7 @@ global {
 	bool udpScannerReader <- true;  
 
 	string cityIOUrl;	
-	bool load_grid_file_from_cityIO <-true;
+	bool load_grid_file_from_cityIO parameter: 'cityIO' category: "Parameters" <-true;
 	bool launchpad<-false;
 	bool table_interaction <- true;
 	
@@ -56,7 +56,7 @@ global {
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
-			shape<-(simplification(shape,100));
+			//shape<-(simplification(shape,100));
 		}
 		
 		ask cell {
@@ -300,7 +300,9 @@ species water skills: [moving] {
 	}
 	
 	aspect default {
-		draw square(0.25#km)  color: color;	
+		if(showWater){
+		  draw square(0.25#km)  color: color;		
+		}
 	}
 }
 
@@ -379,7 +381,10 @@ species landuse schedules:[]{
 	string type;
 	rgb color;
 	aspect base{
-	  draw shape color:color border:#black;		
+	  if(showLanduse){
+	  	draw shape color:color border:#black;	
+	  }
+	  	
 	}
 }
 
@@ -476,13 +481,13 @@ experiment dev type: gui autorun:true{
 			event mouse_down action:mouse_click;
 			event["g"] action: {showGrid<-!showGrid;};
 			event["l"] action: {showLegend<-!showLegend;};
-			event["w"] action: {showWaterLevel<-!showWaterLevel;};
+			event["w"] action: {showWater<-!showWater;};
 			
 			graphics 'background'{
 				draw shape color:#white at:{location.x,location.y,-10};
 			}
 			
-			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background: # black transparency: 0.5 border: #black rounded: true
+			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background:#black transparency: 0.0 border: #black rounded: true
             {   if(showLegend){
 	            	draw "CityScope Hanoi" at: { 0#px,  4#px } color: #white font: font("Helvetica", 32,#bold);
 	            	draw "\nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
