@@ -36,7 +36,7 @@ global {
 	bool udpScannerReader <- true;  
 
 	string cityIOUrl;	
-	bool load_grid_file_from_cityIO <-false;
+	bool load_grid_file_from_cityIO <-true;
 	bool launchpad<-false;
 	bool table_interaction <- true;
 	
@@ -300,10 +300,6 @@ species water skills: [moving] {
 	}
 	
 	aspect default {
-//		draw line({location.x-amount*cos(heading-90),location.y-amount*sin(heading-90)},{location.x+amount*cos(heading-90),location.y+amount*sin(heading-90)})  color: color border: color-25;
-		if !showWaterLevel{
-			
-		}
 		draw square(0.25#km)  color: color;	
 	}
 }
@@ -346,13 +342,7 @@ species river{
 	cell overlapping_cell;
 	
 	aspect base{
-		/*if(showWaterLevel){
-			draw shape color: is_closed? #red:rgb(235-235*sqrt(min([waterLevel,8])/8),235-235*sqrt(min([waterLevel,8])/8),255) width:3;
-		}else{
-		    draw shape color: is_closed? #red:#blue width:1;	
-		}*/
-			draw shape color: is_closed? #red:rgb(235-235*sqrt(min([waterLevel,8])/8),235-235*sqrt(min([waterLevel,8])/8),255) width:3;
-		
+	  draw shape color: is_closed? #red:rgb(235-235*sqrt(min([waterLevel,8])/8),235-235*sqrt(min([waterLevel,8])/8),255) width:3;		
 	}
 }
 
@@ -389,9 +379,7 @@ species landuse schedules:[]{
 	string type;
 	rgb color;
 	aspect base{
-		if(evaporationAvgTime>2000){
-		  draw shape color:color border:#black;	
-		}	
+	  draw shape color:color border:#black;		
 	}
 }
 
@@ -423,8 +411,6 @@ species NetworkingAgent skills:[network] {
  			loop i from:0 to: length(m)-2 step: 2 {
  				scan_result <+ [int(m[i]),int(m[i+1])];
 			}
- 	//		write(scan_result);
-			
 			int ncols <- sqrt(length(scan_result)) as int ;
 			int nrows <- sqrt(length(scan_result)) as int;	    
 			int x;
@@ -435,9 +421,7 @@ species NetworkingAgent skills:[network] {
 				if ((i mod nrows) mod 2 = 0 and int(i / ncols) mod 2 = 0) {
 					x <- grid_width - 1 - int((i mod nrows) / 2);
 					y <- grid_height - 1 - int((int(i / ncols)) / 2);
-					
-					write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];
-					
+					//write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];
 					id <- scan_result[i][0];
 					rot <- scan_result[i][1];
 					// write id;
@@ -572,33 +556,3 @@ experiment CityScope type: gui autorun:true parent:dev{
 		{}
 	} 
 }
-
-
-//////////////////////////////////////////////////////////// TO CLEAN //////////////////////////////////////////////////////////
-
-//TODO: DO we keep this?
-/* 
- * autre modèle de pollution ajouté dans le global (moins de consommation d'eau, rejet d'eau polluée ne peut être supérieur à la quantité d'eau prélevée)
- * 
- * 
-	reflex water_withdraw when: false {
-		river r <- one_of(rivers_on_cell);
-		list<water> ws <- water where (river(each.current_edge) = r);
-		ask (cells_withdrawal[type]/100 * length(ws)) among ws {
-			do die;
-		}
-	}
-	
-	reflex pollution_emission when: false {
-		river r <- one_of(rivers_on_cell);
-		
-		if(r != nil) {
-			if(flip(cells_pollution[type] * 0.01)) {
-				// TODO : review the entry points 
-				create pollution {
-					location <- last(r.shape.points);// any_location_in(r);
-				}	
-			}			
-		}
-	}	
-*/
