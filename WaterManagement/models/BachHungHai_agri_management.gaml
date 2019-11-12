@@ -30,6 +30,8 @@ global {
 	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	
+	bool keystoning parameter: 'Show keystone grid' category: "Parameters" <-false;
+	
 	// Network
 	int scaningUDPPort <- 9877;
 	string url <- "localhost";
@@ -273,6 +275,9 @@ grid cell width: 8 height: 8 {
 			}else{
 			  	draw shape color:cells_colors[type];	
 			}	
+		}
+		if keystoning {
+				draw shape * 0.75 color: #pink;
 		}
 	}
 }
