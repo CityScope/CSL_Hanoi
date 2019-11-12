@@ -61,7 +61,7 @@ global {
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
-			//shape<-(simplification(shape,100));
+			shape<-(simplification(shape,100));
 		}
 		
 		ask cell {
@@ -523,6 +523,7 @@ experiment dev type: gui autorun:true{
 	            	draw "CityScope Hanoi" at: { 0#px,  4#px } color: #white font: font("Helvetica", 32,#bold);
 	            	draw "\nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
 	            	
+	            	
 	            	float y <- 70#px;
 	            	draw "INTERACTION" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            	y<-y+25#px;
@@ -575,6 +576,9 @@ experiment dev type: gui autorun:true{
                 	y <- y + 25#px;
                 	draw rectangle(200#px,2#px) at: { xOutput+100#px, y } color: #white;
                 	draw rectangle(2#px,10#px) at: { xOutput+(evaporationAvgTime/10000.0)*200#px, y } color: #white;
+                	
+                	y <- y + 50#px;
+                	draw string("135 000ha - 2000km of canal") at: { xOutput+0#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
             		
             	}
             }
