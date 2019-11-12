@@ -11,7 +11,7 @@ global {
 
 	file gates_shape_file <- shape_file("../includes/BachHungHaiData/gates.shp");
 	file rivers_shape_file <- shape_file("../includes/BachHungHaiData/rivers.shp");
-	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers.shp");
+	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers_simple.shp");
 	file landuse_shape_file <- shape_file("../includes/BachHungHaiData/VNM_adm4.shp");
 	
 	graph the_river;
@@ -57,7 +57,10 @@ global {
 	
 	init{
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
-		create main_river from:main_rivers_shape_file;
+		create main_river from:main_rivers_shape_file{
+			shape<-(simplification(shape,100));
+
+		}
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
