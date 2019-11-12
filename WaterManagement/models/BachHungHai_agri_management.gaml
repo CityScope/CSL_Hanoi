@@ -58,7 +58,7 @@ global {
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
-			//shape<-(simplification(shape,100));
+			shape<-(simplification(shape,100));
 		}
 		
 		ask cell {
