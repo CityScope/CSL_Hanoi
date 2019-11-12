@@ -606,3 +606,11 @@ experiment CityScope type: gui autorun:true parent:dev{
 		{}
 	} 
 }
+
+experiment CityScopeHanoi type: gui autorun:true parent:dev{
+	output {
+		display "Physical Table" type: opengl draw_env:false toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
+		keystone: [{0.10098673129882907,0.05004077744224389,0.0},{0.13085030058460204,0.8869230259426092,0.0},{0.7411067492484581,0.8996998306504457,0.0},{0.7684598972967126,0.05583045771934214,0.0}]
+		{}
+	} 
+}
