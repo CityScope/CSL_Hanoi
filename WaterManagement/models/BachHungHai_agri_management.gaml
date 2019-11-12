@@ -23,14 +23,15 @@ global {
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::2.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
-    bool showLegend parameter: 'Show Legend' category: "Parameters" <-true;
-    bool showOutput parameter: 'Show Output' category: "Parameters" <-true;
-
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
 	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
+	bool showDryness parameter: 'Show Dryness' category: "Parameters" <-false; 
 	
-	bool keystoning parameter: 'Show keystone grid' category: "Parameters" <-false;
+	bool showLegend parameter: 'Show Legend' category: "Legend" <-true;
+    bool showOutput parameter: 'Show Output' category: "Legend" <-true;
+	
+	bool keystoning parameter: 'Show keystone grid' category: "Keystone" <-false;
 	
 	// Network
 	int scaningUDPPort <- 9877;
@@ -53,7 +54,7 @@ global {
 	int grid_width <- 8;
 	
 	// dryness parameters
-	int dryness_removal_amount <- 100; 
+	int dryness_removal_amount parameter: 'Water Evaporation time' category: "Parameters" step: 10 min: 10 max:1000 <- 100 ; 
 	
 	init{
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
@@ -136,7 +137,9 @@ global {
 			cell c <- river(self.current_edge).overlapping_cell;
 			if flip(cells_withdrawal[ c.type] * 0.01){
 				ask c.landuse_on_cell {
-					self.dryness <- self.dryness - dryness_removal_amount;
+					if(self.dryness > 0){
+					 self.dryness <- self.dryness - dryness_removal_amount;	
+					}
 				}
 				if(flip(cells_pollution[ c.type] * 0.01)) {
 					create polluted_water {
@@ -406,18 +409,21 @@ species gate {
 }
 
 
-species landuse schedules:[]{
+species landuse{
 	string type;
 	rgb color;
 	int dryness <- 0;
 	
 	reflex dry when: (dryness < 1000) {
-		dryness <- dryness + 1;
+		dryness <- dryness + dryness_removal_amount/100;
 	}
 	
 	aspect base{
 	  if(showLanduse){
-	  	draw shape color:color border:#black;	
+	  	draw shape color:color border:#black;
+	  	if(showDryness){
+	  	    	draw string(dryness) color:#white size:50;	
+	  	}
 	  }	
 	}
 }
