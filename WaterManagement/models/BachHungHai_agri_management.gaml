@@ -137,9 +137,7 @@ global {
 			cell c <- river(self.current_edge).overlapping_cell;
 			if flip(cells_withdrawal[ c.type] * 0.01){
 				ask c.landuse_on_cell {
-					if(self.dryness > 0){
-					 self.dryness <- self.dryness - dryness_removal_amount;	
-					}
+					 self.dryness <- max(self.dryness - dryness_removal_amount,0);	
 				}
 				if(flip(cells_pollution[ c.type] * 0.01)) {
 					create polluted_water {
@@ -412,7 +410,7 @@ species gate {
 species landuse{
 	string type;
 	rgb color;
-	int dryness <- 0;
+	int dryness <- 500;
 	
 	reflex dry when: (dryness < 1000) {
 		dryness <- dryness + dryness_removal_amount/100;
@@ -420,9 +418,12 @@ species landuse{
 	
 	aspect base{
 	  if(showLanduse){
-	  	draw shape color:color border:#black;
+	  	
 	  	if(showDryness){
-	  	    	draw string(dryness) color:#white size:50;	
+	  		draw shape color:(dryness>500) ? #red :#green  border:#black;
+	  	    //draw string(dryness) color:#white size:50;	
+	  	}else{
+	  		draw shape color:color border:#black;
 	  	}
 	  }	
 	}
