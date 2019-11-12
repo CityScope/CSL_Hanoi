@@ -52,6 +52,9 @@ global {
 	int grid_height <- 8;
 	int grid_width <- 8;
 	
+	// dryness parameters
+	int dryness_removal_amount <- 100; 
+	
 	init{
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
 		create main_river from:main_rivers_shape_file;
@@ -67,6 +70,18 @@ global {
 		
 		ask river {
 			overlapping_cell <- first(cell overlapping self);
+		}
+		
+		ask landuse {
+			if !empty(cell overlapping self) {
+				cell c <- (cell overlapping self) with_max_of(inter(each.shape,self.shape).area);
+				c.landuse_on_cell <+ self;
+			}
+			
+//			cell c <-one_of(cell overlapping self);
+//			if c != nil{
+//				c.landuse_on_cell <+ self;
+//			}
 		}
 		
 		source <- gate where (each.type = "source");
@@ -115,12 +130,16 @@ global {
 	
 	reflex water_consumption_and_pollution{
 		ask water where(each.current_edge != nil) {
-			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
-				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
+			cell c <- river(self.current_edge).overlapping_cell;
+			if flip(cells_withdrawal[ c.type] * 0.01){
+				ask c.landuse_on_cell {
+					self.dryness <- self.dryness - dryness_removal_amount;
+				}
+				if(flip(cells_pollution[ c.type] * 0.01)) {
 					create polluted_water {
 						location <- myself.location;
 						heading <- myself.heading;
-						type<-river(myself.current_edge).overlapping_cell.type;
+						type<-c.type;
 					}		
 				}	
 			do die;
@@ -162,7 +181,8 @@ global {
 				int old_type <- index_of(cells_types, selected_cell.type);
 				selected_cell.type <- cells_types[mod(index_of(cells_types, selected_cell.type)+1,length(cells_types))];
 			}
-			ask landuse overlapping selected_cell{
+			//ask landuse overlapping selected_cell{
+			ask selected_cell.landuse_on_cell{
 			  self.color<-cells_colors[selected_cell.type];
 			}
 		}
@@ -259,6 +279,7 @@ grid cell width: 8 height: 8 {
 	string type;
 	rgb color;
 	list<river> rivers_on_cell;
+	list<landuse> landuse_on_cell <- [];
 	
 	init {
 		type<-one_of (cells_types);
@@ -277,7 +298,7 @@ grid cell width: 8 height: 8 {
 			}	
 		}
 		if keystoning {
-				draw shape * 0.75 color: #pink;
+				draw 100.0 around(shape * 0.75) color: #black;
 		}
 	}
 }
@@ -385,11 +406,16 @@ species gate {
 species landuse schedules:[]{
 	string type;
 	rgb color;
+	int dryness <- 0;
+	
+	reflex dry when: (dryness < 1000) {
+		dryness <- dryness + 1;
+	}
+	
 	aspect base{
 	  if(showLanduse){
 	  	draw shape color:color border:#black;	
-	  }
-	  	
+	  }	
 	}
 }
 
