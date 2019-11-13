@@ -347,7 +347,7 @@ species water skills: [moving] {
 			tmp <- probaEdges[edge];
 			put 1.0 at: edge in: probaEdges;	
 		}
-		do wander on: the_river speed: 600.0 proba_edges: probaEdges;
+		do wander on: the_river speed: 450.0 proba_edges: probaEdges;
 		if edge != nil{
 			put tmp at: edge in: probaEdges;	
 		}
@@ -425,7 +425,7 @@ species gate {
 			draw circle(0.75#km)-circle(0.4#km) color:  #red  border: #black;
 		}else{
 			if self.type = "source" {
-				draw circle(0.75#km) - circle(0.40#km) color:  #cyan  border: #black;
+				draw circle(0.75#km) - circle(0.40#km) color:  rgb(0,162,232)  border: #black;
 			}else if self.type = "sink" {
 				draw circle(0.75#km) - circle(0.40#km) color:  #white;//  border: #black;
 			}else{
@@ -619,12 +619,12 @@ experiment dev type: gui autorun:true{
 	                y <- y + 25#px;
 	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #red border: #black;
 	                draw 'Closed' at: { x + 40#px, y + 7#px } color: #white font: font("Helvetica", 20,#bold);
-//	                y <- y + 25#px;
-//	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #cyan border: #black;
-//	                draw 'Source' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                y <- y + 25#px;
+	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: rgb(0,162,232) border: #black;
+	                draw 'Source' at: { x + 40#px, y + 7#px } color: #white font: font("Helvetica", 20,#bold);
 //	                y <- y + 25#px;
 //	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #white border: #black;
-//	                draw 'Sink' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+//	                draw 'Sink' at: { x + 40#px, y + 7#px } color: #white font: font("Helvetica", 20,#bold);
 	                y <- y + 25#px;
 	                draw "Turn lego to open" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            	draw "\nand close" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
