@@ -580,8 +580,7 @@ experiment dev type: gui autorun:true{
 //	                draw 'Sink' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
 	                y <- y + 25#px;
 	                draw "Turn lego to open" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-	            	y <- y + 25#px;
-	            	draw "and close" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	draw "\nand close" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            
             	} 
             	if(showOutput){
