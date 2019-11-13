@@ -18,7 +18,6 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
-	map<int,string> cellsMap<-[1::"Aquaculture", 2::"Rice",3::"Vegetables", 4::"Industrial", -1::"Null"];
 	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial", "Null"];
 	
 	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red, cells_types[4]::#black];
@@ -225,7 +224,7 @@ global {
 				int id <-int(list(list(cityMatrixData["grid"])[j*nbCols+i])[0]);
 				int rot <-int(list(list(cityMatrixData["grid"])[j*nbCols+i])[1]);
 				if(id =0 or id=1 or id=2 or id=3){
-			     cell[i,j].type<-cellsMap.values[id];	
+			     cell[i,j].type<-cells_types[id];	
 			     if(rot=1 or rot=3){
 			     	ask gate overlapping cell[i,j]{
 			     		if(self.type != "source" and self.type != "sink"){
@@ -278,7 +277,7 @@ global {
 			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
 			    rot<-int(list<list>(cityMatrixData["grid"])[i][1]);
 			    if(id =0 or id=1 or id=2 or id=3){
-			     cell[x,y].type<-cellsMap.values[id];	
+			     cell[x,y].type<-cells_types[id];	
 			     if(rot=1 or rot=3){
 			     	ask gate overlapping cell[x,y]{
 			     		if(self.type != "source" and self.type != "sink"){
@@ -517,7 +516,7 @@ species NetworkingAgent skills:[network] {
 						rot <- scan_result[i][1];
 						// write id;
 						if (id = 0 or id = 1 or id = 2 or id = 3) {
-							cell[x, y].type <- cellsMap.values[id];
+							cell[x, y].type <- cells_types[id];
 							if (rot = 0 or rot = 2) {
 								ask gate overlapping cell[x, y] {
 									if (self.type != "source" and self.type != "sink") {
@@ -542,7 +541,7 @@ species NetworkingAgent skills:[network] {
 								self.color <- cells_colors[cell[x, y].type];
 							}
 						}else{
-							cell[x, y].type <- "Null";//cellsMap.values[id];
+							cell[x, y].type <- "Null";//
 						}
 					}
 				} 
