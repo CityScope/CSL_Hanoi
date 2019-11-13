@@ -35,10 +35,13 @@ global {
 	
 	bool keystoning parameter: 'Show keystone grid' category: "Keystone" <-false;
 	
-	// Network
-	int scaningUDPPort <- 9877 parameter: "UDP port" category: "Parameters" ;
+	// Network for scanning and slider
+	int scaningUDPPort <- 9877 parameter: "Scanning UDP port" category: "Parameters" ;
 	string url <- "localhost";
 	bool udpScannerReader <- true;  
+	
+	int sliderUDPPort <- 9878 parameter: "Arduino UDP port" category: "Parameters" ;
+	bool udpSliderArduino <- true; 
 
 	string cityIOUrl;	
 	bool load_grid_file_from_cityIO parameter: 'cityIO' category: "Parameters" <-true;
@@ -100,6 +103,12 @@ global {
 			create NetworkingAgent number: 1 {
 			 type <-"scanner";	
 		     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
+		    }
+		}
+		if(udpSliderArduino){
+			create NetworkingAgent number: 1 {
+			 type <-"slider";	
+		     do connect to: url protocol: "udp_server" port: sliderUDPPort ;
 		    }
 		}
 	}
@@ -431,13 +440,10 @@ species NetworkingAgent skills:[network] {
 	string type;
 	string previousMess <-"";
 	
-	reflex fetch when:false and has_more_message() {	
-		
+	reflex fetch when:false and has_more_message() and type = "slider"{		
 		if (length(mailbox) > 0) {
 			message s <- fetch_message();
 			write "fetch messages " + s.contents;
-		
-			
 			if(s.contents !=previousMess){	
 			  previousMess<-s.contents;
 			  	evaporationAvgTime<-2.0+float(previousMess)/5.0*5000;			  
@@ -445,7 +451,7 @@ species NetworkingAgent skills:[network] {
 	    }
 	}
 	
-	reflex update_landuse when: true and has_more_message() {
+	reflex update_landuse when: true and has_more_message() and type = "scanner"{
 		list<list<int>> scan_result <- [];    
 	    
 	    if (length(mailbox) > 0) {
