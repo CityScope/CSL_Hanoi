@@ -426,7 +426,7 @@ species gate {
 			if self.type = "source" {
 				draw circle(0.75#km) - circle(0.40#km) color:  rgb(0,162,232)  border: #black;
 			}else if self.type = "sink" {
-				draw circle(0.75#km) - circle(0.40#km) color:  #white;//  border: #black;
+			//	draw circle(0.75#km) - circle(0.40#km) color:  #white;//  border: #black;
 			}else{
 				draw circle(0.75#km)-circle(0.4#km) color:  #green  border: #black;
 			}
