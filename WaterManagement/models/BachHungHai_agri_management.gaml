@@ -24,7 +24,7 @@ global {
 	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red, cells_types[4]::#black];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::3.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::55, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
-	map<string,matrix<int>> lego_code <-["Aquaculture"::matrix([[1,0],[0,0]]),"Rice"::matrix([[1,1],[1,0]]),"Vegetables"::matrix([[1,0],[0,1]]),"Industrial"::matrix([[1,0],[1,0]])];
+	map<string,matrix<int>> lego_code <-["Aquaculture"::matrix([[1,1],[1,0]]),"Rice"::matrix([[1,0],[0,0]]),"Vegetables"::matrix([[1,0],[0,1]]),"Industrial"::matrix([[1,0],[1,0]])];
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
 	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
@@ -403,7 +403,7 @@ species gate {
 			draw circle(0.75#km)-circle(0.4#km) color:  #red  border: #black;
 		}else{
 			if self.type = "source" {
-			//	draw circle(0.75#km) - circle(0.40#km) color:  #cyan  border: #black;
+				draw circle(0.75#km) - circle(0.40#km) color:  #cyan  border: #black;
 			}else if self.type = "sink" {
 				draw circle(0.75#km) - circle(0.40#km) color:  #white;//  border: #black;
 			}else{
