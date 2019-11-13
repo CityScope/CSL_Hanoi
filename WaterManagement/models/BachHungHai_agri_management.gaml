@@ -12,6 +12,7 @@ global {
 	file gates_shape_file <- shape_file("../includes/BachHungHaiData/gates.shp");
 	file rivers_shape_file <- shape_file("../includes/BachHungHaiData/rivers.shp");
 	file main_rivers_shape_file <- shape_file("../includes/BachHungHaiData/main_rivers_simple.shp");
+	file river_flows_shape_file <- shape_file("../includes/BachHungHaiData/river_flows.shp");
 	file landuse_shape_file <- shape_file("../includes/BachHungHaiData/VNM_adm4.shp");
 	
 	graph the_river;
@@ -63,13 +64,13 @@ global {
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
 		create main_river from:main_rivers_shape_file{
 			shape<-(simplification(shape,100));
-
 		}
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
 			shape<-(simplification(shape,100));
 		}
+		create eye_candy from:river_flows_shape_file with: [type:: int(read('TYPE'))];
 		
 		ask cell {
 			do init_cell;
@@ -426,6 +427,23 @@ species landuse{
 	}
 }
 
+
+species eye_candy{
+	int type;
+	
+	aspect base{
+		if mod(cycle,3) = mod(type,3){
+			draw shape color:#blue;
+		}
+		if mod(cycle-1,3) = mod(type,3){
+			draw shape color:rgb(50,50,255);
+		}
+		if mod(cycle-2,3) = mod(type,3){
+			draw shape color:rgb(100,100,255);
+		}
+	}
+}
+
 species NetworkingAgent skills:[network] {
 	
 	string type;
@@ -519,6 +537,7 @@ experiment dev type: gui autorun:true{
 			species static_pollution transparency: 0.5;
 			species water transparency: 0.2;
 			
+			species eye_candy aspect: base;
 			
 			species gate;
 			
