@@ -270,40 +270,42 @@ global {
 		int y;
 		int id;
 		int rot;
-		loop i from:0 to: (ncols*nrows)-1{ 
-			if((i mod nrows) mod 2 = 0 and int(i/ncols) mod 2 = 0){   
-				x<- grid_width-1-int((i mod nrows)/2);
-			    y<-grid_height-1-int((int(i/ncols))/2);
-			    id<-int(list<list>(cityMatrixData["grid"])[i][0]);
-			    rot<-int(list<list>(cityMatrixData["grid"])[i][1]);
-			    if(id =0 or id=1 or id=2 or id=3){
-			     cell[x,y].type<-cells_types[id];	
-			     if(rot=1 or rot=3){
-			     	ask gate overlapping cell[x,y]{
-			     		if(self.type != "source" and self.type != "sink"){
-			     		    is_closed<-true;	
-			     			ask self.controledRivers {
-								self.is_closed <- true;
-						  	}
-			     		}
-			     	}
-			     	
-			     }else{
-			        ask gate overlapping cell[x,y]{
-			     		if(self.type != "source" and self.type != "sink"){
-			     		 	is_closed<-false;
-			     			ask self.controledRivers {
-								self.is_closed <- false;
+		if(ncols > 0) {
+			loop i from: 0 to: (ncols * nrows) - 1 {
+				if ((i mod nrows) mod 2 = 0 and int(i / ncols) mod 2 = 0) {
+					x <- grid_width - 1 - int((i mod nrows) / 2);
+					y <- grid_height - 1 - int((int(i / ncols)) / 2);
+					id <- int(list<list>(cityMatrixData["grid"])[i][0]);
+					rot <- int(list<list>(cityMatrixData["grid"])[i][1]);
+					if (id = 0 or id = 1 or id = 2 or id = 3) {
+						cell[x, y].type <- cells_types[id];
+						if (rot = 1 or rot = 3) {
+							ask gate overlapping cell[x, y] {
+								if (self.type != "source" and self.type != "sink") {
+									is_closed <- true;
+									ask self.controledRivers {
+										self.is_closed <- true;
+									}
+								}
 							}
-			     		}
-			     	}	
-			     }
-			     ask landuse overlapping cell[x,y]{
-			     		self.color<-cells_colors[cell[x,y].type];
-			     }
-			    }  
-			 } 		
-       }	
+						} else {
+							ask gate overlapping cell[x, y] {
+								if (self.type != "source" and self.type != "sink") {
+									is_closed <- false;
+									ask self.controledRivers {
+										self.is_closed <- false;
+									}
+								}
+							}
+						}
+	
+						ask landuse overlapping cell[x, y] {
+							self.color <- cells_colors[cell[x, y].type];
+						}
+					}
+				}
+			}
+		} 
 	}	
 }
 
