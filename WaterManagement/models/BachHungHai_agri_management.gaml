@@ -19,11 +19,11 @@ global {
 	
 	map<int,string> cellsMap<-[1::"Aquaculture", 2::"Rice",3::"Vegetables", 4::"Industrial", -1::"Null"];
 	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial", "Null"];
-	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red, cells_types[4]::#black];
-	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::2.0,cells_types[2]::0.25, cells_types[3]::4.0];
-	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
+	map<string, rgb> cells_colors <- [cells_types[0]::#hotpink, cells_types[1]::#yellow,cells_types[2]::#green, cells_types[3]::#red, cells_types[4]::#black];
+	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::3.0,cells_types[2]::0.25, cells_types[3]::4.0];
+	map<string, int> cells_pollution <- [cells_types[0]::55, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
-	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
+	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
 	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	bool showDryness parameter: 'Show Dryness' category: "Parameters" <-false; 
@@ -42,7 +42,7 @@ global {
 	bool load_grid_file_from_cityIO parameter: 'cityIO' category: "Parameters" <-true;
 	bool launchpad<-false;
 	bool table_interaction <- true;
-	bool debug <- true;
+	bool debug <- false;
 	
 	list<gate> source;
 	list<gate> dest;
@@ -50,7 +50,7 @@ global {
 	map<river,float> probaEdges;
 	
 	float evaporationAvgTime parameter: 'Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 2500.0 ;
-		
+	float StaticPollutionEvaporationAvgTime parameter: 'Pollution Evaporation time' category: "Parameters" step: 10.0 min: 2.0 max:10000.0 <- 500.0 ;
 	int grid_height <- 8;
 	int grid_width <- 8;
 	
@@ -153,8 +153,8 @@ global {
 		
 		ask polluted_water where(each.current_edge != nil) {
 			if flip(cells_withdrawal[ river(self.current_edge).overlapping_cell.type] * 0.01){
-				create static_pollution{
-					dissolution_expectancy<-evaporationAvgTime;
+				create static_pollution number: 8{
+					dissolution_expectancy<-StaticPollutionEvaporationAvgTime * (0.8 + rnd(0.4));
 					color <- myself.color;
 					//location <- myself.location;// any_location_in(circle(20#km));
 					location <- any_location_in(3#km around(myself.location));
@@ -297,13 +297,13 @@ grid cell width: 8 height: 8 {
 	aspect base{
 		if(showGrid){
 			if(type="Water"){
-				draw shape color:color;	
+				draw shape color:color border: #white;	
 			}else{
-			  	draw shape color:cells_colors[type];	
+			  	draw shape color:cells_colors[type] border: #white;	
 			}	
 		}
 		if keystoning {
-				draw 100.0 around(shape * 0.75) color: #black;
+				draw 100.0 around(shape * 0.75) color: #black border: #white;
 		}
 	}
 }
@@ -319,7 +319,7 @@ species water skills: [moving] {
 			tmp <- probaEdges[edge];
 			put 1.0 at: edge in: probaEdges;	
 		}
-		do wander on: the_river speed: 300.0 proba_edges: probaEdges;
+		do wander on: the_river speed: 600.0 proba_edges: probaEdges;
 		if edge != nil{
 			put tmp at: edge in: probaEdges;	
 		}
@@ -397,9 +397,9 @@ species gate {
 			draw circle(0.75#km)-circle(0.4#km) color:  #red  border: #black;
 		}else{
 			if self.type = "source" {
-				draw circle(0.75#km) - circle(0.40#km) color:  #cyan  border: #black;
+			//	draw circle(0.75#km) - circle(0.40#km) color:  #cyan  border: #black;
 			}else if self.type = "sink" {
-				draw circle(0.75#km) - circle(0.40#km) color:  #white  border: #black;
+				draw circle(0.75#km) - circle(0.40#km) color:  #white;//  border: #black;
 			}else{
 				draw circle(0.75#km)-circle(0.4#km) color:  #green  border: #black;
 			}
@@ -458,52 +458,54 @@ species NetworkingAgent skills:[network] {
  			loop i from:0 to: length(m)-2 step: 2 {
  				scan_result <+ [int(m[i]),int(m[i+1])];
 			}
-			int ncols <- sqrt(length(scan_result)) as int ;
+			int ncols <- sqrt(length(scan_result)) as int;
 			int nrows <- sqrt(length(scan_result)) as int;	    
 			int x;
 			int y;
 			int id;
 			int rot;
-			loop i from: 0 to: length(scan_result) - 1 {
-				if ((i mod nrows) mod 2 = 0 and int(i / ncols) mod 2 = 0) {
-					x <- grid_width - 1 - int((i mod nrows) / 2);
-					y <- grid_height - 1 - int((int(i / ncols)) / 2);
-					if(debug) {
-						write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];	
-					}
-					id <- scan_result[i][0];
-					rot <- scan_result[i][1];
-					// write id;
-					if (id = 0 or id = 1 or id = 2 or id = 3) {
-						cell[x, y].type <- cellsMap.values[id];
-						if (rot = 1 or rot = 3) {
-							ask gate overlapping cell[x, y] {
-								if (self.type != "source" and self.type != "sink") {
-									is_closed <- true;
-									ask self.controledRivers {
-										self.is_closed <- true;
+			if (ncols > 0){ // Debug divide by zero
+				loop i from: 0 to: length(scan_result) - 1 {
+					if ((i mod nrows) mod 2 = 0 and int(i / ncols) mod 2 = 0) {
+						x <- grid_width - 1 - int((i mod nrows) / 2);
+						y <- grid_height - 1 - int((int(i / ncols)) / 2);
+						if(debug) {
+							write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];	
+						}
+						id <- scan_result[i][0];
+						rot <- scan_result[i][1];
+						// write id;
+						if (id = 0 or id = 1 or id = 2 or id = 3) {
+							cell[x, y].type <- cellsMap.values[id];
+							if (rot = 0 or rot = 2) {
+								ask gate overlapping cell[x, y] {
+									if (self.type != "source" and self.type != "sink") {
+										is_closed <- true;
+										ask self.controledRivers {
+											self.is_closed <- true;
+										}
+									}
+								}
+							} else {
+								ask gate overlapping cell[x, y] {
+									if (self.type != "source" and self.type != "sink") {
+										is_closed <- false;
+										ask self.controledRivers {
+											self.is_closed <- false;
+										}
 									}
 								}
 							}
-						} else {
-							ask gate overlapping cell[x, y] {
-								if (self.type != "source" and self.type != "sink") {
-									is_closed <- false;
-									ask self.controledRivers {
-										self.is_closed <- false;
-									}
-								}
+		
+							ask landuse overlapping cell[x, y] {
+								self.color <- cells_colors[cell[x, y].type];
 							}
+						}else{
+							cell[x, y].type <- "Null";//cellsMap.values[id];
 						}
-	
-						ask landuse overlapping cell[x, y] {
-							self.color <- cells_colors[cell[x, y].type];
-						}
-					}else{
-						cell[x, y].type <- "Null";//cellsMap.values[id];
 					}
-				}
-			} 
+				} 
+			}
 		} 
 	} 
 }
@@ -535,40 +537,48 @@ experiment dev type: gui autorun:true{
 			
 			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background:#black transparency: 0.0 border: #black rounded: true
             {   if(showLegend){
-	            	draw "CityScope Hanoi" at: { 0#px,  4#px } color: #white font: font("Helvetica", 32,#bold);
-	            	draw "\nWater Management" at: { 0#px,  4#px } color: #white font: font("Helvetica", 20,#bold);
+//	            	draw "CityScope Hanoi" at: { 0#px,  -203#px } color: #white font: font("Helvetica", 32,#bold);
+//	            	draw "\nWater Management" at: { 0#px,  -203#px } color: #white font: font("Helvetica", 20,#bold);
 	            	
+	            	float x <- -70#px;
+	            	draw "CityScope Hanoi" at: { x + 0#px,  -203#px } color: #white font: font("Helvetica", 32,#bold);
+	            	draw "\nWater Management" at: { x + 0#px,  -203#px } color: #white font: font("Helvetica", 20,#bold);
 	            	
 	            	float y <- 70#px;
-	            	draw "INTERACTION" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	draw "INTERACTION" at: { -70#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            	y<-y+25#px;
-	            	draw "Landuse" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	draw "Landuse" at: { -70#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            	y<-y+25#px;
-	                loop type over: cells_types
+	                loop type over: cells_types where (each != "Null")
 	                {
-	                    draw square(20#px) at: { 20#px, y } color: cells_colors[type] border: cells_colors[type]+1;
-	                    draw string(type) at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                	draw square(20#px) at: { -60#px, y } color: #white;
+	                	draw square(8#px) at:  { -55#px, y-5#px } color: #black;
+	                	draw square(8#px) at:  { -65#px, y+5#px } color: #black;
+	                    draw square(20#px) at: { -30#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+	                    draw string(type) at: { -10#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
 	                    y <- y + 25#px;
 	                }
 	                
 	             
-	                
-	                y <- y + 25#px;
-	                draw "Gate" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	                x <- -70#px;
+	                y <- y + 80#px;
+	                draw "Gate" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            	y <- y + 25#px;
-	                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #green border: #black;
-	                draw 'Open' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-	                
-	                draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #cyan border: #black;
-	                draw 'Source' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #green border: #black;
+	                draw 'Open' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
 	                y <- y + 25#px;
-	                draw circle(10#px)-circle(5#px) at: { 20#px, y } color: #red border: #black;
-	                draw 'Closed' at: { 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
-	                
-	                 draw circle(10#px)-circle(5#px) at: { 20#px+125#px, y } color: #white border: #black;
-	                draw 'Sink' at: { 40#px+125#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #red border: #black;
+	                draw 'Closed' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+//	                y <- y + 25#px;
+//	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #cyan border: #black;
+//	                draw 'Source' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+//	                y <- y + 25#px;
+//	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #white border: #black;
+//	                draw 'Sink' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
 	                y <- y + 25#px;
-	                draw "Turn lego to open and close" at: { 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	                draw "Turn lego to open" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	            	y <- y + 25#px;
+	            	draw "and close" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
 	            
             	} 
             	if(showOutput){
@@ -615,11 +625,11 @@ experiment CityScope type: gui autorun:true parent:dev{
 experiment CityScopeHanoi type: gui autorun:true parent:dev{
 	parameter "UDP port" var: scaningUDPPort <- 5000 category: "Parameters" ;
 	parameter 'cityIO' var: load_grid_file_from_cityIO category: "Parameters" <-false;
-	parameter 'debug mode' var: debug category: "Parameters" <-true;
+	parameter 'debug mode' var: debug category: "Parameters" <-false;
 	 
 	output {
 		display "Physical Table" type: opengl draw_env:false toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
-		keystone: [{0.10098673129882907,0.05004077744224389,0.0},{0.13085030058460204,0.8869230259426092,0.0},{0.7411067492484581,0.8996998306504457,0.0},{0.7684598972967126,0.05583045771934214,0.0}]
-		{}
-	} 
+	keystone: [{-0.09071592866970579,-0.04944466003423331,0.0},{-0.09251960586743271,1.0667782941941648,0.0},{1.0991328705050387,1.0523531694480113,0.0},{1.0953920074671133,-0.0683499712237926,0.0}]
+	{}
+	}
 }
