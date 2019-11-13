@@ -19,12 +19,13 @@ global {
 	
 	map<int,string> cellsMap<-[1::"Aquaculture", 2::"Rice",3::"Vegetables", 4::"Industrial", -1::"Null"];
 	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial", "Null"];
-	map<string, rgb> cells_colors <- [cells_types[0]::#hotpink, cells_types[1]::#yellow,cells_types[2]::#green, cells_types[3]::#red, cells_types[4]::#black];
+	
+	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red, cells_types[4]::#black];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::3.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::55, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 	map<string,matrix<int>> lego_code <-["Aquaculture"::matrix([[1,0],[0,0]]),"Rice"::matrix([[1,1],[1,0]]),"Vegetables"::matrix([[1,0],[0,1]]),"Industrial"::matrix([[1,0],[1,0]])];
 
-	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
+	bool showGrid parameter: 'Show grid' category: "Parameters" <-false;
 	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	bool showDryness parameter: 'Show Dryness' category: "Parameters" <-false; 
