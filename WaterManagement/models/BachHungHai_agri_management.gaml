@@ -22,6 +22,7 @@ global {
 	map<string, rgb> cells_colors <- [cells_types[0]::#hotpink, cells_types[1]::#yellow,cells_types[2]::#green, cells_types[3]::#red, cells_types[4]::#black];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::3.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::55, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
+	map<string,matrix<int>> lego_code <-["Aquaculture"::matrix([[1,0],[0,0]]),"Rice"::matrix([[1,1],[1,0]]),"Vegetables"::matrix([[1,0],[0,1]]),"Industrial"::matrix([[1,0],[1,0]])];
 
 	bool showGrid parameter: 'Show grid' category: "Parameters" <-true;
 	bool showWater parameter: 'Show Water' category: "Parameters" <-true;
@@ -82,11 +83,6 @@ global {
 				cell c <- (cell overlapping self) with_max_of(inter(each.shape,self.shape).area);
 				c.landuse_on_cell <+ self;
 			}
-			
-//			cell c <-one_of(cell overlapping self);
-//			if c != nil{
-//				c.landuse_on_cell <+ self;
-//			}
 		}
 		
 		source <- gate where (each.type = "source");
@@ -156,7 +152,6 @@ global {
 				create static_pollution number: 8{
 					dissolution_expectancy<-StaticPollutionEvaporationAvgTime * (0.8 + rnd(0.4));
 					color <- myself.color;
-					//location <- myself.location;// any_location_in(circle(20#km));
 					location <- any_location_in(3#km around(myself.location));
 				}
 				if(flip(cells_pollution[ river(self.current_edge).overlapping_cell.type] * 0.01)) {
@@ -536,39 +531,47 @@ experiment dev type: gui autorun:true{
 			}
 			
 			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background:#black transparency: 0.0 border: #black rounded: true
-            {   if(showLegend){
-//	            	draw "CityScope Hanoi" at: { 0#px,  -203#px } color: #white font: font("Helvetica", 32,#bold);
-//	            	draw "\nWater Management" at: { 0#px,  -203#px } color: #white font: font("Helvetica", 20,#bold);
+            {   
+            	if(showLegend){
+// previous overlay, kept for rolling back
+//            		float x <- -70#px;
+//					float y <- -203#px;
+//	            	draw "CityScope Hanoi" at: { x, y } color: #white font: font("Helvetica", 32,#bold);
+//	            	draw "\nWater Management" at: { x, y } color: #white font: font("Helvetica", 20,#bold);
+//		            
+					float x <- -70#px;
+					float y <- -150#px;
+		            draw "CityScope" at: { x, y } color: #white font: font("Helvetica", 32,#bold);
+		            draw "\nHanoi" at: { x, y } color: #white font: font("Helvetica", 32,#bold);
+	            	draw "\n\nWater Management" at: { x, y + 35#px } color: #white font: font("Helvetica", 17,#bold);
 	            	
-	            	float x <- -70#px;
-	            	draw "CityScope Hanoi" at: { x + 0#px,  -203#px } color: #white font: font("Helvetica", 32,#bold);
-	            	draw "\nWater Management" at: { x + 0#px,  -203#px } color: #white font: font("Helvetica", 20,#bold);
+	            	y <- 190#px;
+	            	draw "INTERACTION" at: { x,  y } color: #white font: font("Helvetica", 20,#bold);
+	            	y<-y+25#px;
+	            	draw "Landuse" at: { x,  y } color: #white font: font("Helvetica", 20,#bold);
+	            	y<-y+25#px;
 	            	
-	            	float y <- 70#px;
-	            	draw "INTERACTION" at: { -70#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-	            	y<-y+25#px;
-	            	draw "Landuse" at: { -70#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
-	            	y<-y+25#px;
 	                loop type over: cells_types where (each != "Null")
 	                {
-	                	draw square(20#px) at: { -60#px, y } color: #white;
-	                	draw square(8#px) at:  { -55#px, y-5#px } color: #black;
-	                	draw square(8#px) at:  { -65#px, y+5#px } color: #black;
-	                    draw square(20#px) at: { -30#px, y } color: cells_colors[type] border: cells_colors[type]+1;
-	                    draw string(type) at: { -10#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                    draw square(20#px) at: { x + 10#px, y } color: #white;
+						loop i from: 0 to: lego_code[type].rows - 1{
+							loop j from: 0 to: lego_code[type].columns - 1{
+								draw square(8#px) at: {x + (5+i*10)#px, y + (-5+j*10)#px} color: lego_code[type][i,j]=1?#black:#white;
+							}
+						}
+	                    draw square(20#px) at: { x + 40#px, y } color: cells_colors[type] border: cells_colors[type]+1;
+	                    draw string(type) at: { x + 60#px, y + 7#px } color: #white font: font("Helvetica", 20,#bold);
 	                    y <- y + 25#px;
 	                }
 	                
-	             
-	                x <- -70#px;
-	                y <- y + 80#px;
-	                draw "Gate" at: { x + 0#px,  y+4#px } color: #white font: font("Helvetica", 20,#bold);
+	                y <- y + 40#px;
+	                draw "Gate" at: { x + 0#px,  y+7#px } color: #white font: font("Helvetica", 20,#bold);
 	            	y <- y + 25#px;
 	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #green border: #black;
-	                draw 'Open' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                draw 'Open' at: { x + 40#px, y + 7#px } color: #white font: font("Helvetica", 20,#bold);
 	                y <- y + 25#px;
 	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #red border: #black;
-	                draw 'Closed' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
+	                draw 'Closed' at: { x + 40#px, y + 7#px } color: #white font: font("Helvetica", 20,#bold);
 //	                y <- y + 25#px;
 //	                draw circle(10#px)-circle(5#px) at: { x + 20#px, y } color: #cyan border: #black;
 //	                draw 'Source' at: { x + 40#px, y + 4#px } color: #white font: font("Helvetica", 20,#bold);
