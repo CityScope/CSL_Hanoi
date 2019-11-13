@@ -413,7 +413,7 @@ species landuse{
 	int dryness <- 500;
 	
 	reflex dry when: (dryness < 1000) {
-		dryness <- dryness + dryness_removal_amount/100;
+		dryness <- dryness + int(dryness_removal_amount/100);
 	}
 	
 	aspect base{
