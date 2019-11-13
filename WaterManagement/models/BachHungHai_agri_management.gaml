@@ -295,11 +295,11 @@ grid cell width: 8 height: 8 {
 			if(type="Water"){
 				draw shape color:color border: #white;	
 			}else{
-			  	draw shape color:cells_colors[type] border: #white;	
+			  	draw shape color:cells_colors[type];	
 			}	
 		}
 		if keystoning {
-				draw 100.0 around(shape * 0.75) color: #black border: #white;
+				draw 100.0 around(shape * 0.75) color: #black;
 		}
 	}
 }
