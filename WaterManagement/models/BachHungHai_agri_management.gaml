@@ -440,18 +440,19 @@ species NetworkingAgent skills:[network] {
 	string type;
 	string previousMess <-"";
 	
-	reflex fetch when:false and has_more_message() and type = "slider"{		
+	reflex fetch when:has_more_message() and type = "slider"{		
 		if (length(mailbox) > 0) {
+			write "read slider version";
 			message s <- fetch_message();
 			write "fetch messages " + s.contents;
 			if(s.contents !=previousMess){	
 			  previousMess<-s.contents;
-			  	evaporationAvgTime<-2.0+float(previousMess)/5.0*5000;			  
+			  evaporationAvgTime<-2.0+float(previousMess)/5.0*5000;			  
 			}	
 	    }
 	}
 	
-	reflex update_landuse when: true and has_more_message() and type = "scanner"{
+	reflex update_landuse when: has_more_message() and type = "scanner"{
 		list<list<int>> scan_result <- [];    
 	    
 	    if (length(mailbox) > 0) {
