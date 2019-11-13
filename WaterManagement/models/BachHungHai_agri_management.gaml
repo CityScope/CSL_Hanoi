@@ -442,9 +442,7 @@ species NetworkingAgent skills:[network] {
 	
 	reflex fetch when:has_more_message() and type = "slider"{		
 		if (length(mailbox) > 0) {
-			write "read slider version";
 			message s <- fetch_message();
-			write "fetch messages " + s.contents;
 			if(s.contents !=previousMess){	
 			  previousMess<-s.contents;
 			  evaporationAvgTime<-2.0+float(previousMess)/5.0*5000;			  
