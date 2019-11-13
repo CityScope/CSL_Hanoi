@@ -17,9 +17,9 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
-	map<int,string> cellsMap<-[1::"Aquaculture", 2::"Rice",3::"Vegetables", 4::"Industrial"];
-	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial"];
-	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red];
+	map<int,string> cellsMap<-[1::"Aquaculture", 2::"Rice",3::"Vegetables", 4::"Industrial", -1::"Null"];
+	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial", "Null"];
+	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red, cells_types[4]::#black];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::2.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::25, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 
@@ -34,7 +34,7 @@ global {
 	bool keystoning parameter: 'Show keystone grid' category: "Keystone" <-false;
 	
 	// Network
-	int scaningUDPPort <- 9877;
+	int scaningUDPPort <- 9877 parameter: "UDP port" category: "Parameters" ;
 	string url <- "localhost";
 	bool udpScannerReader <- true;  
 
@@ -42,6 +42,7 @@ global {
 	bool load_grid_file_from_cityIO parameter: 'cityIO' category: "Parameters" <-true;
 	bool launchpad<-false;
 	bool table_interaction <- true;
+	bool debug <- true;
 	
 	list<gate> source;
 	list<gate> dest;
@@ -467,7 +468,9 @@ species NetworkingAgent skills:[network] {
 				if ((i mod nrows) mod 2 = 0 and int(i / ncols) mod 2 = 0) {
 					x <- grid_width - 1 - int((i mod nrows) / 2);
 					y <- grid_height - 1 - int((int(i / ncols)) / 2);
-					//write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];
+					if(debug) {
+						write "" + i + " - x - " + x + " - y - " + y + " - " + scan_result[i][0];	
+					}
 					id <- scan_result[i][0];
 					rot <- scan_result[i][1];
 					// write id;
@@ -496,6 +499,8 @@ species NetworkingAgent skills:[network] {
 						ask landuse overlapping cell[x, y] {
 							self.color <- cells_colors[cell[x, y].type];
 						}
+					}else{
+						cell[x, y].type <- "Null";//cellsMap.values[id];
 					}
 				}
 			} 
@@ -608,6 +613,10 @@ experiment CityScope type: gui autorun:true parent:dev{
 }
 
 experiment CityScopeHanoi type: gui autorun:true parent:dev{
+	parameter "UDP port" var: scaningUDPPort <- 5000 category: "Parameters" ;
+	parameter 'cityIO' var: load_grid_file_from_cityIO category: "Parameters" <-false;
+	parameter 'debug mode' var: debug category: "Parameters" <-true;
+	 
 	output {
 		display "Physical Table" type: opengl draw_env:false toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
 		keystone: [{0.10098673129882907,0.05004077744224389,0.0},{0.13085030058460204,0.8869230259426092,0.0},{0.7411067492484581,0.8996998306504457,0.0},{0.7684598972967126,0.05583045771934214,0.0}]
