@@ -18,9 +18,9 @@ global {
 	graph the_river;
 	geometry shape <- envelope(main_rivers_shape_file);	
 	
-	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial", "Null"];
+	list<string> cells_types <- ["Aquaculture", "Rice","Vegetables", "Industrial","Null"];
 	
-	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red, cells_types[4]::#black];
+	map<string, rgb> cells_colors <- [cells_types[0]::#orange, cells_types[1]::#darkgreen,cells_types[2]::#lightgreen, cells_types[3]::#red,cells_types[4]::#black];
 	map<string, float> cells_withdrawal <- [cells_types[0]::0.5, cells_types[1]::3.0,cells_types[2]::0.25, cells_types[3]::4.0];
 	map<string, int> cells_pollution <- [cells_types[0]::55, cells_types[1]::0,cells_types[2]::20, cells_types[3]::90];
 	map<string,matrix<int>> lego_code <-["Aquaculture"::matrix([[1,1],[1,0]]),"Rice"::matrix([[1,0],[0,0]]),"Vegetables"::matrix([[1,0],[0,1]]),"Industrial"::matrix([[1,0],[1,0]])];
@@ -30,21 +30,21 @@ global {
 	bool showLanduse parameter: 'Show LandUse' category: "Parameters" <-true; 
 	bool showDryness parameter: 'Show Dryness' category: "Parameters" <-false; 
 	
-	bool showLegend parameter: 'Show Legend' category: "Legend" <-true;
-    bool showOutput parameter: 'Show Output' category: "Legend" <-true;
+	bool showLegend parameter: 'Show Legend' category: "Legend" <-false;
+    bool showOutput parameter: 'Show Output' category: "Legend" <-false;
 	
 	bool keystoning parameter: 'Show keystone grid' category: "Keystone" <-false;
 	
 	// Network for scanning and slider
-	int scaningUDPPort <- 9877 parameter: "Scanning UDP port" category: "Parameters" ;
+	int scaningUDPPort <- 9877;
 	string url <- "localhost";
 	bool udpScannerReader <- true;  
 	
-	int sliderUDPPort <- 9878 parameter: "Arduino UDP port" category: "Parameters" ;
+	int sliderUDPPort <- 9878;
 	bool udpSliderArduino <- true; 
 
 	string cityIOUrl;	
-	bool load_grid_file_from_cityIO parameter: 'cityIO' category: "Parameters" <-true;
+	bool load_grid_file_from_cityIO parameter: 'cityIO' category: "Parameters" <-false;
 	bool launchpad<-false;
 	bool table_interaction <- true;
 	bool debug <- false;
@@ -65,12 +65,13 @@ global {
 	init{
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
 		create main_river from:main_rivers_shape_file{
-			shape<-(simplification(shape,100));
+			//shape<-(simplification(shape,100));
 		}
 		create river from: rivers_shape_file;
 		create gate from: gates_shape_file with: [type:: string(read('Type'))];
 		create landuse from: landuse_shape_file with:[type::string(get("SIMPLE"))]{
-			shape<-(simplification(shape,100));
+			//shape<-(simplification(shape,100));
+			color<-#black;
 		}
 		create eye_candy from:river_flows_shape_file with: [type:: int(read('TYPE'))];
 		
@@ -86,6 +87,7 @@ global {
 			if !empty(cell overlapping self) {
 				cell c <- (cell overlapping self) with_max_of(inter(each.shape,self.shape).area);
 				c.landuse_on_cell <+ self;
+				color<-c.color;
 			}
 		}
 		
@@ -317,6 +319,7 @@ grid cell width: 8 height: 8 {
 	
 	init {
 		type<-one_of (cells_types);
+		//type<-cells_types[4];
 	}
 	
 	action init_cell {
@@ -448,14 +451,17 @@ species landuse{
 	
 	aspect base{
 	  if(showLanduse){
-	  	
 	  	if(showDryness){
 	  		draw shape color:(dryness>500) ? #red :#green  border:#black;
 	  	    //draw string(dryness) color:#white size:50;	
 	  	}else{
-	  		draw shape color:color border:#black;
+	  		  draw shape color:color border:#black;	
 	  	}
 	  }	
+	}
+	
+	aspect default{
+	  draw shape color:#gray border:#gray wireframe:true;
 	}
 }
 
@@ -554,28 +560,25 @@ species NetworkingAgent skills:[network] {
 
 
 experiment dev type: gui autorun:true{
-	output {
-		display "Bac" type: opengl draw_env:false background:#black synchronized:true refresh: every(1#cycle)
+	output synchronized:true{
+		display "Bac" type: opengl background:#black  autosave:false
 		{
-			species landuse aspect:base transparency:0.65;
+			species landuse aspect:default;// transparency:0.65;
 			species cell aspect:base transparency: 0.6;	
 			species main_river aspect:base;			
 			species river aspect:base transparency: 0.2;
 			species polluted_water transparency: 0.2;
-			species static_pollution transparency: 0.5;
+			species static_pollution;// transparency: 0.5;
 			species water transparency: 0.2;
-			
 			species eye_candy aspect: base;
-			
 			species gate;
-			
-			event mouse_down action:mouse_click;
-			event["g"] action: {showGrid<-!showGrid;};
-			event["l"] action: {showLegend<-!showLegend;};
-			event["w"] action: {showWater<-!showWater;};
+			event #mouse_down action:mouse_click;
+			event "g" {showGrid<-!showGrid;}
+			event "l" {showLegend<-!showLegend;}
+			event "w" {showWater<-!showWater;}
 			
 			graphics 'background'{
-				draw shape color:#white at:{location.x,location.y,-10};
+				//draw shape color:#white at:{location.x,location.y,-10};
 			}
 			
 			overlay position: { 180#px, 250#px } size: { 180 #px, 100 #px } background:#black transparency: 0.0 border: #black rounded: true
@@ -666,9 +669,10 @@ experiment dev type: gui autorun:true{
 
 experiment CityScope type: gui autorun:true parent:dev{
 	output {
-		display "Physical Table" type: opengl draw_env:false toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
-		keystone: [{0.10098673129882907,0.05004077744224389,0.0},{0.13085030058460204,0.8869230259426092,0.0},{0.7411067492484581,0.8996998306504457,0.0},{0.7684598972967126,0.05583045771934214,0.0}]
-		{}
+		display "Physical Table" type: opengl toolbar:false background:#black synchronized:true refresh: every(1#cycle) parent:"Bac" 
+        {
+        	
+        }
 	} 
 }
 
@@ -678,8 +682,9 @@ experiment CityScopeHanoi type: gui autorun:true parent:dev{
 	parameter 'debug mode' var: debug category: "Parameters" <-false;
 	 
 	output {
-		display "Physical Table" type: opengl draw_env:false toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:1 parent:"Bac"
-	keystone: [{-0.09071592866970579,-0.04944466003423331,0.0},{-0.09251960586743271,1.0667782941941648,0.0},{1.0991328705050387,1.0523531694480113,0.0},{1.0953920074671133,-0.0683499712237926,0.0}]
-	{}
+		display "Physical Table" type: opengl toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:true parent:"Bac"
+	    {
+	    	
+	    }
 	}
 }
