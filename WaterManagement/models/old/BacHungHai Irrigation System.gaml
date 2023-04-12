@@ -99,7 +99,7 @@ species Station skills: [moving] {
 
 	aspect default {
 		draw cube(0.01) color: #red;
-		draw circle(rad) color: #red empty: true;
+		draw circle(rad) color: #red wireframe: true;
 		draw Name + " " + " " + TL_level + " " + HL_level size: 10 at: {location.x,location.y,0.015} color: #red perspective:false; // heso[cycle mod 4388] + 
 		if (TL_area != nil) {
 			draw TL_area color: #green;

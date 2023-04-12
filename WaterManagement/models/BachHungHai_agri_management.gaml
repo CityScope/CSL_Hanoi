@@ -668,8 +668,8 @@ experiment dev type: gui autorun:true{
 
 
 experiment CityScope type: gui autorun:true parent:dev{
-	output {
-		display "Physical Table" type: opengl toolbar:false background:#black synchronized:true refresh: every(1#cycle) parent:"Bac" 
+	output synchronized:true{
+		display "Physical Table" type: opengl toolbar:false background:#black  refresh: every(1#cycle) parent:"Bac" 
         {
         	
         }
@@ -681,8 +681,8 @@ experiment CityScopeHanoi type: gui autorun:true parent:dev{
 	parameter 'cityIO' var: load_grid_file_from_cityIO category: "Parameters" <-false;
 	parameter 'debug mode' var: debug category: "Parameters" <-false;
 	 
-	output {
-		display "Physical Table" type: opengl toolbar:false background:#black synchronized:true refresh: every(1#cycle) fullscreen:true parent:"Bac"
+	output synchronized:true{
+		display "Physical Table" type: opengl toolbar:false background:#black  refresh: every(1#cycle) fullscreen:true parent:"Bac"
 	    {
 	    	
 	    }

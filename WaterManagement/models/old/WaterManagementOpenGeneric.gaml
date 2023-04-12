@@ -145,31 +145,29 @@ species gate {
 
 
 experiment dev type: gui autorun:true{
-	output {
-		display "As DEM" type: opengl draw_env:false background:#black synchronized:true {
+	output synchronized:true{
+		display "As DEM" type: opengl axes:false background:#black  {
 		    species block;
 		    species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
 			species gate;
-			//species land aspect:base;
-			
-			event["g"] action: {showGrid<-!showGrid;};
-			event["b"] action: {showBlock<-!showBlock;};
+			event "g" {showGrid<-!showGrid;}
+			event "b" {showBlock<-!showBlock;}
 		}
 	} 
 }
 
 experiment cityscope type: gui autorun:true{
-	output {
-		display "As DEM" type: opengl draw_env:false background:#black fullscreen:1 toolbar:false synchronized:true
+	output synchronized:true{
+		display "As DEM" type: opengl axes:false background:#black fullscreen:1 toolbar:false 
 		keystone: [{0.11656421991808863,0.167109629356474,0.0},{0.14285268545600432,0.8143146078580775,0.0},{0.7170183091562854,0.8153797412496441,0.0},{0.735674403288836,0.16759312313473373,0.0}]{	//species land aspect:base;
 			species cell aspect:base;// transparency:0.5; 
 			species river aspect:base;
 			species water;
 			species gate;
-			event["g"] action: {showGrid<-!showGrid;};
-			event["b"] action: {showBlock<-!showBlock;};
+			event "g" {showGrid<-!showGrid;}
+			event "b" {showBlock<-!showBlock;}
 		}
 
 	} 
